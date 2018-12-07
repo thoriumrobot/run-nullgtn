@@ -1,0 +1,209 @@
+diff --git a/build.gradle b/build.gradle
+index 989b625..0e8df40 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -45,15 +45,12 @@ allprojects {
+ 
+ ext {
+     autoDispose = 'com.uber.autodispose:autodispose:0.7.0'
+-    checkerFramework = 'org.checkerframework:dataflow:2.1.14'
+-    errorProne = 'com.google.errorprone:error_prone_core:2.1.3'
+     rxJava = 'io.reactivex.rxjava2:rxjava:2.1.13'
+     junit = 'junit:junit:4.12'
+     truth = 'com.google.truth:truth:0.32'
+     gson = 'com.google.code.gson:gson:2.8.0'
+     jackson = 'com.fasterxml.jackson.core:jackson-databind:2.8.7'
+     moshi = 'com.squareup.moshi:moshi:1.4.0'
+-    nullAway = 'com.uber.nullaway:nullaway:0.4.6'
+     bintrayVersion = '1.3.1'
+     kotlinPlugin = 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.1.1'
+     kotlinStdlib = 'org.jetbrains.kotlin:kotlin-stdlib:1.1.1'
+diff --git a/converters/gson-converter/build.gradle b/converters/gson-converter/build.gradle
+index 8a9b860..4ab63be 100644
+--- a/converters/gson-converter/build.gradle
++++ b/converters/gson-converter/build.gradle
+@@ -30,7 +30,6 @@ buildscript {
+ plugins {
+     id 'com.jfrog.bintray' version '1.6'
+     id 'net.ltgt.apt' version '0.13'
+-    id 'net.ltgt.errorprone' version '0.0.13'
+     id "org.jetbrains.kotlin.jvm" version "1.2.41"
+     id 'maven-publish'
+     id 'java'
+@@ -40,14 +39,10 @@ sourceCompatibility = 1.8
+ targetCompatibility = 1.8
+ 
+ dependencies {
+-    apt rootProject.ext.nullAway
+-
++    
+     compile project(':keyvaluestore')
+     compileOnly rootProject.ext.gson
+ 
+-    errorprone rootProject.errorProne
+-    errorprone rootProject.checkerFramework
+-
+     testCompile rootProject.ext.junit
+     testCompile rootProject.ext.truth
+     testCompile rootProject.ext.kotlinStdlib
+@@ -126,10 +121,3 @@ bintray {
+         vcsUrl = PROJECT_URL
+     }
+ }
+-
+-tasks.withType(JavaCompile) {
+-    // remove the if condition if you want to run NullAway on test code
+-    if (!name.toLowerCase().contains("test")) {
+-        options.compilerArgs += ["-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.ludwig"]
+-    }
+-}
+\ No newline at end of file
+diff --git a/converters/jackson-converter/build.gradle b/converters/jackson-converter/build.gradle
+index a6235e7..4414900 100644
+--- a/converters/jackson-converter/build.gradle
++++ b/converters/jackson-converter/build.gradle
+@@ -30,7 +30,6 @@ buildscript {
+ plugins {
+     id 'com.jfrog.bintray' version '1.6'
+     id 'net.ltgt.apt' version '0.13'
+-    id 'net.ltgt.errorprone' version '0.0.13'
+     id "org.jetbrains.kotlin.jvm" version "1.2.41"
+     id 'maven-publish'
+     id 'java'
+@@ -40,14 +39,10 @@ sourceCompatibility = 1.8
+ targetCompatibility = 1.8
+ 
+ dependencies {
+-    apt rootProject.ext.nullAway
+-
++    
+     compile project(':keyvaluestore')
+     compileOnly rootProject.ext.jackson
+ 
+-    errorprone rootProject.errorProne
+-    errorprone rootProject.checkerFramework
+-
+     testCompile rootProject.ext.junit
+     testCompile rootProject.ext.truth
+ }
+@@ -124,10 +119,3 @@ bintray {
+         vcsUrl = PROJECT_URL
+     }
+ }
+-
+-tasks.withType(JavaCompile) {
+-    // remove the if condition if you want to run NullAway on test code
+-    if (!name.toLowerCase().contains("test")) {
+-        options.compilerArgs += ["-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.ludwig"]
+-    }
+-}
+diff --git a/converters/moshi-converter/build.gradle b/converters/moshi-converter/build.gradle
+index b4522e0..aff6af0 100644
+--- a/converters/moshi-converter/build.gradle
++++ b/converters/moshi-converter/build.gradle
+@@ -30,7 +30,6 @@ buildscript {
+ plugins {
+     id 'com.jfrog.bintray' version '1.6'
+     id 'net.ltgt.apt' version '0.13'
+-    id 'net.ltgt.errorprone' version '0.0.13'
+     id "org.jetbrains.kotlin.jvm" version "1.2.41"
+     id 'maven-publish'
+     id 'java'
+@@ -40,14 +39,10 @@ sourceCompatibility = 1.8
+ targetCompatibility = 1.8
+ 
+ dependencies {
+-    apt rootProject.ext.nullAway
+ 
+     compile project(':keyvaluestore')
+     compile rootProject.ext.moshi
+ 
+-    errorprone rootProject.errorProne
+-    errorprone rootProject.checkerFramework
+-
+     testCompile rootProject.ext.junit
+     testCompile rootProject.ext.truth
+     testCompile rootProject.ext.kotlinStdlib
+@@ -126,10 +121,3 @@ bintray {
+         vcsUrl = PROJECT_URL
+     }
+ }
+-
+-tasks.withType(JavaCompile) {
+-    // remove the if condition if you want to run NullAway on test code
+-    if (!name.toLowerCase().contains("test")) {
+-        options.compilerArgs += ["-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.ludwig"]
+-    }
+-}
+\ No newline at end of file
+diff --git a/keyvaluestore/build.gradle b/keyvaluestore/build.gradle
+index 055ca79..3fc2f17 100644
+--- a/keyvaluestore/build.gradle
++++ b/keyvaluestore/build.gradle
+@@ -30,7 +30,6 @@ buildscript {
+ plugins {
+     id 'com.jfrog.bintray' version '1.6'
+     id 'net.ltgt.apt' version '0.13'
+-    id 'net.ltgt.errorprone' version '0.0.13'
+     id "org.jetbrains.kotlin.jvm" version "1.2.41"
+     id 'maven-publish'
+     id 'java'
+@@ -40,13 +39,9 @@ sourceCompatibility = 1.8
+ targetCompatibility = 1.8
+ 
+ dependencies {
+-    apt rootProject.ext.nullAway
+ 
+     compile rootProject.ext.rxJava
+ 
+-    errorprone rootProject.errorProne
+-    errorprone rootProject.checkerFramework
+-
+     testCompile rootProject.ext.junit
+     testCompile rootProject.ext.truth
+     testCompile rootProject.ext.kotlinStdlib
+@@ -125,10 +120,3 @@ bintray {
+         vcsUrl = PROJECT_URL
+     }
+ }
+-
+-tasks.withType(JavaCompile) {
+-    // remove the if condition if you want to run NullAway on test code
+-    if (!name.toLowerCase().contains("test")) {
+-        options.compilerArgs += ["-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.ludwig"]
+-    }
+-}
+\ No newline at end of file
+diff --git a/samples/sample-java/build.gradle b/samples/sample-java/build.gradle
+index 09806bd..cd75bad 100644
+--- a/samples/sample-java/build.gradle
++++ b/samples/sample-java/build.gradle
+@@ -26,7 +26,6 @@ buildscript {
+ 
+ plugins {
+     id 'net.ltgt.apt' version '0.13'
+-    id 'net.ltgt.errorprone' version '0.0.13'
+     id 'java'
+ }
+ 
+@@ -35,19 +34,7 @@ sourceCompatibility = 1.8
+ targetCompatibility = 1.8
+ 
+ dependencies {
+-    apt rootProject.ext.nullAway
+-
+-    errorprone rootProject.errorProne
+-    errorprone rootProject.checkerFramework
+ 
+     compile project(':keyvaluestore')
+     compile project(':converters:moshi-converter')
+ }
+-
+-
+-tasks.withType(JavaCompile) {
+-    // remove the if condition if you want to run NullAway on test code
+-    if (!name.toLowerCase().contains("test")) {
+-        options.compilerArgs += ["-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.ludwig"]
+-    }
+-}
+\ No newline at end of file

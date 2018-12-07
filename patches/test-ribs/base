@@ -1,0 +1,158 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index e81d1db..4618453 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -17,11 +17,9 @@
+ buildscript {
+     dependencies {
+         classpath deps.build.gradlePlugins.android
+-        classpath deps.build.gradlePlugins.errorprone
+     }
+ }
+ 
+-apply plugin: 'net.ltgt.errorprone'
+ apply plugin: 'com.android.application'
+ 
+ android {
+@@ -48,7 +46,6 @@ dependencies {
+     annotationProcessor deps.apt.raveCompiler
+     annotationProcessor deps.apt.daggerCompiler
+     annotationProcessor project(":libraries:rib-compiler-test")
+-    annotationProcessor deps.apt.nullAway
+     compile project(":libraries:rib-android")
+     compile project(":libraries:rib-workflow")
+     compile deps.external.dagger
+@@ -58,20 +55,6 @@ dependencies {
+     provided deps.apt.javax
+     provided deps.apt.autoValueAnnotations
+     testCompile project(":libraries:rib-test-utils")
+-    errorprone deps.build.errorProne
+-}
+-
+-tasks.withType(JavaCompile) {
+-    options.compilerArgs += ["-Xep:CheckReturnValue:OFF"]
+-    // NullAway configuration
+-    if (!name.toLowerCase().contains("test")) {
+-        options.compilerArgs += [
+-                "-Xep:NullAway:ERROR",
+-                "-XepOpt:NullAway:AnnotatedPackages=com.uber",
+-                // Dagger doesn't pass the NullAway checks. So we
+-                // use the following flag to disable Error Prone on generated code.
+-                "-XepExcludedPaths:.*/build/generated/.*"]
+-    }
+ }
+ 
+ dependencies {
+diff --git a/gradle/dependencies.gradle b/gradle/dependencies.gradle
+index 8bd69da..4c2bb56 100755
+--- a/gradle/dependencies.gradle
++++ b/gradle/dependencies.gradle
+@@ -21,14 +21,12 @@ def versions = [
+     robolectric: "3.4.2",
+     intellij: "2017.2",
+     rave: "2.0.0",
+-    errorProne: '2.2.0',
+ ]
+ 
+ def apt = [
+     androidApi: "com.google.android:android:2.2.1",
+     autoCommon: "com.google.auto:auto-common:0.8",
+     autoService: "com.google.auto.service:auto-service:1.0-rc3",
+-    nullAway: 'com.uber.nullaway:nullaway:0.3.2',
+     daggerCompiler: "com.google.dagger:dagger-compiler:${versions.dagger}",
+     javapoet: "com.squareup:javapoet:1.9.0",
+     javax: "javax.annotation:jsr250-api:1.0",
+@@ -36,7 +34,6 @@ def apt = [
+     autoValue: "com.google.auto.value:auto-value:1.5",
+     autoValueAnnotations: "com.jakewharton.auto.value:auto-value-annotations:1.5",
+     raveCompiler: "com.uber:rave-compiler:${versions.rave}",
+-    errorProneAnnotations: "com.google.errorprone:error_prone_annotations:${versions.errorProne}",
+ ]
+ 
+ def build = [
+@@ -49,12 +46,8 @@ def build = [
+     guava: "com.google.guava:guava:20.0",
+     commonsLang: "commons-lang:commons-lang:2.6",
+     intellijPlugin: "gradle.plugin.org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.2.13",
+-    errorProne: "com.google.errorprone:error_prone_core:${versions.errorProne}",
+-    errorProneCore: "com.google.errorprone:error_prone_core:${versions.errorProne}",
+-    errorProneTestHelpers: "com.google.errorprone:error_prone_test_helpers:${versions.errorProne}",
+     gradlePlugins: [
+         android: 'com.android.tools.build:gradle:2.3.1',
+-        errorprone: 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.11'
+     ]
+ ]
+ 
+diff --git a/libraries/rib-android-test/build.gradle b/libraries/rib-android-test/build.gradle
+index a6d9be2..77e97e5 100644
+--- a/libraries/rib-android-test/build.gradle
++++ b/libraries/rib-android-test/build.gradle
+@@ -35,6 +35,10 @@ android {
+         sourceCompatibility JavaVersion.VERSION_1_7
+         targetCompatibility JavaVersion.VERSION_1_7
+     }
++
++    lintOptions {
++        abortOnError false
++    }
+ }
+ 
+ dependencies {
+diff --git a/libraries/rib-android/build.gradle b/libraries/rib-android/build.gradle
+index 6d47039..d6af2b0 100644
+--- a/libraries/rib-android/build.gradle
++++ b/libraries/rib-android/build.gradle
+@@ -35,6 +35,10 @@ android {
+         sourceCompatibility JavaVersion.VERSION_1_7
+         targetCompatibility JavaVersion.VERSION_1_7
+     }
++
++    lintOptions {
++        abortOnError false
++    }
+ }
+ 
+ dependencies {
+diff --git a/libraries/rib-screen-stack-base/build.gradle b/libraries/rib-screen-stack-base/build.gradle
+index 441cb62..1aa756a 100644
+--- a/libraries/rib-screen-stack-base/build.gradle
++++ b/libraries/rib-screen-stack-base/build.gradle
+@@ -35,6 +35,10 @@ android {
+         sourceCompatibility JavaVersion.VERSION_1_7
+         targetCompatibility JavaVersion.VERSION_1_7
+     }
++
++    lintOptions {
++        abortOnError false
++    }
+ }
+ 
+ dependencies {
+diff --git a/libraries/rib-workflow/build.gradle b/libraries/rib-workflow/build.gradle
+index a949072..8b37938 100644
+--- a/libraries/rib-workflow/build.gradle
++++ b/libraries/rib-workflow/build.gradle
+@@ -35,6 +35,10 @@ android {
+         sourceCompatibility JavaVersion.VERSION_1_7
+         targetCompatibility JavaVersion.VERSION_1_7
+     }
++
++    lintOptions {
++        abortOnError false
++    }
+ }
+ 
+ dependencies {
+diff --git a/settings.gradle b/settings.gradle
+index 118790c..021569a 100644
+--- a/settings.gradle
++++ b/settings.gradle
+@@ -10,6 +10,6 @@ include ':libraries:rib-router-navigator'
+ include ':libraries:rib-uava'
+ include ':libraries:rib-workflow'
+ include ':libraries:rib-workflow-test-utils'
+-include ':tooling:rib-intellij-plugin'
+-include ':tooling:autodispose-error-prone-checker'
++//include ':tooling:rib-intellij-plugin'
++//include ':tooling:autodispose-error-prone-checker'
+ include ':app'

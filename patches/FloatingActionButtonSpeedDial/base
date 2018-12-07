@@ -1,0 +1,87 @@
+diff --git a/build.gradle b/build.gradle
+index 221804f..b8abd66 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -28,7 +28,6 @@ buildscript {
+         classpath deps.gradle_bintray_plugin
+         classpath deps.gradle_versions_plugin
+         classpath deps.violations_plugin
+-        classpath deps.errorprone_plugin
+         // NOTE: Do not place your application dependencies here; they belong
+         // in the individual module build.gradle files
+     }
+@@ -73,7 +72,6 @@ task violationCommentsToGitHub(type: se.bjurr.violations.comments.github.plugin.
+     violations = [
+             ["FINDBUGS", ".", ".*/reports/findbugs/.*\\.xml\$", "Findbugs"],
+             ["CHECKSTYLE", ".", ".*/reports/checkstyle/.*debug\\.xml\$", "Checkstyle"],
+-            ["ANDROIDLINT", ".", ".*/reports/lint-results.*\\.xml\$", "Android Lint"],
+-            ["GOOGLEERRORPRONE", ".", ".*/build.log\$", "Error Prone"]
++            ["ANDROIDLINT", ".", ".*/reports/lint-results.*\\.xml\$", "Android Lint"]
+     ]
+ }
+diff --git a/dependencies.gradle b/dependencies.gradle
+index ff3d973..3e12637 100644
+--- a/dependencies.gradle
++++ b/dependencies.gradle
+@@ -41,7 +41,6 @@ versions.driver_hd44780 = "0.2"
+ versions.driver_lsm9ds1 = "0.3"
+ versions.driver_sh1106 = "0.2"
+ versions.driver_tsl256x = "0.1"
+-versions.errorprone_plugin = "0.0.15"
+ versions.espresso = "3.0.1"
+ versions.glide = "3.8.0"
+ versions.gradle_bintray_plugin = "1.8.4"
+@@ -53,7 +52,6 @@ versions.kotlin = "1.2"
+ versions.mockito = "2.13.3"
+ versions.mockito_all = "1.10.19"
+ versions.mockwebserver = "3.9.1"
+-versions.nullaway = "0.5.6"
+ versions.okhttp3 = "3.9.1"
+ versions.paging = "1.0.0-alpha3"
+ versions.pio_softpwm = "0.1"
+@@ -182,7 +180,6 @@ deps.driver_hd44780 = "com.leinardi.android.things:driver-hd44780:$versions.driv
+ deps.driver_lsm9ds1 = "com.leinardi.android.things:driver-lsm9ds1:$versions.driver_lsm9ds1"
+ deps.driver_sh1106 = "com.leinardi.android.things:driver-sh1106:$versions.driver_sh1106"
+ deps.driver_tsl256x = "com.leinardi.android.things:driver-tsl256x:$versions.driver_tsl256x"
+-deps.errorprone_plugin = "net.ltgt.gradle:gradle-errorprone-plugin:$versions.errorprone_plugin"
+ deps.glide = "com.github.bumptech.glide:glide:$versions.glide"
+ deps.gradle_bintray_plugin = "com.jfrog.bintray.gradle:gradle-bintray-plugin:$versions.gradle_bintray_plugin"
+ deps.gradle_versions_plugin = "com.github.ben-manes:gradle-versions-plugin:$versions.gradle_versions_plugin"
+@@ -190,7 +187,6 @@ deps.hamcrest = "org.hamcrest:hamcrest-all:$versions.hamcrest"
+ deps.joystick = "com.github.erz05:JoyStick:$versions.joystick"
+ deps.junit = "junit:junit:$versions.junit"
+ deps.mock_web_server = "com.squareup.okhttp3:mockwebserver:$versions.mockwebserver"
+-deps.nullaway = "com.uber.nullaway:nullaway:$versions.nullaway"
+ deps.okhttp3_logging_interceptor = "com.squareup.okhttp3:logging-interceptor:$versions.okhttp3"
+ deps.paging = "android.arch.paging:runtime:$versions.paging"
+ deps.pio_softpwm = "com.leinardi.android.things:pio-softpwm:$versions.pio_softpwm"
+diff --git a/library/build.gradle b/library/build.gradle
+index 5dbd152..e51dbf1 100644
+--- a/library/build.gradle
++++ b/library/build.gradle
+@@ -16,7 +16,6 @@
+ 
+ apply plugin: 'com.android.library'
+ apply from: rootProject.file('checkstyle.gradle')
+-apply plugin: 'net.ltgt.errorprone'
+ 
+ android {
+     compileSdkVersion build_versions.target_sdk
+@@ -39,17 +38,8 @@ android {
+     }
+ }
+ 
+-tasks.withType(JavaCompile) {
+-    // remove the if condition if you want to run NullAway on test code
+-    if (!name.toLowerCase().contains("test")) {
+-        // remove "-Xep:NullAway:ERROR" to have NullAway only emit warnings
+-        options.compilerArgs += ["-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.leinardi.android.speeddial"]
+-    }
+-}
+-
+ dependencies {
+     api deps.support.app_compat
+     api deps.support.design
+     api deps.support.cardview
+-    annotationProcessor deps.nullaway
+ }

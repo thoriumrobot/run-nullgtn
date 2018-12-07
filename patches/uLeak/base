@@ -1,0 +1,83 @@
+diff --git a/gradle/dependencies.gradle b/gradle/dependencies.gradle
+index 5bc4f69..d95644c 100755
+--- a/gradle/dependencies.gradle
++++ b/gradle/dependencies.gradle
+@@ -15,7 +15,6 @@
+  */
+ 
+ def versions = [
+-    errorProne: '2.1.1',
+     support: '26.1.0'
+ ]
+ 
+@@ -27,8 +26,6 @@ def build = [
+     targetSdkVersion: 26,
+ 
+     checkerFramework: 'org.checkerframework:dataflow:2.1.14',
+-    errorProne: "com.google.errorprone:error_prone_core:${versions.errorProne}",
+-    nullAway: 'com.uber.nullaway:nullaway:0.1.6',
+ 
+     repositories: [
+         plugins: 'https://plugins.gradle.org/m2/'
+@@ -36,12 +33,10 @@ def build = [
+ 
+     gradlePlugins: [
+         android: 'com.android.tools.build:gradle:2.3.2',
+-        errorProne: 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.11'
+     ]
+ ]
+ 
+ def misc = [
+-    errorProneAnnotations: "com.google.errorprone:error_prone_annotations:${versions.errorProne}",
+     javaxExtras: "com.uber.javaxextras:javax-extras:0.1.0",
+     jsr305: 'com.google.code.findbugs:jsr305:3.0.2'
+ ]
+diff --git a/uleak/build.gradle b/uleak/build.gradle
+index 4408b02..a6613e3 100755
+--- a/uleak/build.gradle
++++ b/uleak/build.gradle
+@@ -21,12 +21,10 @@ buildscript {
+ 
+   dependencies {
+     classpath deps.build.gradlePlugins.android
+-    classpath deps.build.gradlePlugins.errorProne
+   }
+ }
+ 
+ apply plugin: 'com.android.library'
+-apply plugin: "net.ltgt.errorprone"
+ 
+ android {
+   compileSdkVersion deps.build.compileSdkVersion
+@@ -40,28 +38,20 @@ android {
+     sourceCompatibility JavaVersion.VERSION_1_7
+     targetCompatibility JavaVersion.VERSION_1_7
+   }
++  lintOptions {
++    abortOnError false
++  }
+ }
+ 
+ dependencies {
+-  annotationProcessor deps.build.nullAway
+-  testAnnotationProcessor deps.build.nullAway
+-
+   compile deps.rx.java
+   compile deps.support.annotations
+ 
+-  provided deps.misc.errorProneAnnotations
+   provided deps.misc.javaxExtras
+ 
+-  errorprone deps.build.checkerFramework
+-  errorprone deps.build.errorProne
+-
+   testCompile deps.test.junit
+   testCompile deps.test.mockito
+   testCompile deps.test.truth
+ }
+ 
+-tasks.withType(JavaCompile) {
+-  options.compilerArgs += ["-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.uber"]
+-}
+-
+ apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

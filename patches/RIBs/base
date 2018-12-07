@@ -1,0 +1,160 @@
+diff --git a/android/demos/memory-leaks/build.gradle b/android/demos/memory-leaks/build.gradle
+index a0df865..66b6fa7 100644
+--- a/android/demos/memory-leaks/build.gradle
++++ b/android/demos/memory-leaks/build.gradle
+@@ -59,7 +59,6 @@ dependencies {
+     annotationProcessor deps.apt.daggerCompiler
+     annotationProcessor project(":libraries:rib-compiler-app")
+     annotationProcessor project(":libraries:rib-compiler-test")
+-    annotationProcessor deps.apt.nullAway
+     compile project(":libraries:rib-android")
+     compile deps.external.dagger
+     compile deps.external.rxbinding
+@@ -80,11 +79,4 @@ tasks.withType(JavaCompile) {
+             "-Xep:InvalidPatternSyntax:OFF",
+             "-Xep:OperatorPrecedence:OFF",
+             "-Xep:DefaultCharset:OFF"]
+-    // NullAway configuration
+-    options.compilerArgs += [
+-            "-Xep:NullAway:ERROR",
+-            "-XepOpt:NullAway:AnnotatedPackages=com.uber",
+-            // Dagger doesn't pass the NullAway checks. So we
+-            // use the following flag to disable Error Prone on generated code.
+-            "-XepExcludedPaths:.*/build/generated/.*"]
+ }
+diff --git a/android/gradle/dependencies.gradle b/android/gradle/dependencies.gradle
+index 8bd69da..aebea25 100755
+--- a/android/gradle/dependencies.gradle
++++ b/android/gradle/dependencies.gradle
+@@ -28,7 +28,6 @@ def apt = [
+     androidApi: "com.google.android:android:2.2.1",
+     autoCommon: "com.google.auto:auto-common:0.8",
+     autoService: "com.google.auto.service:auto-service:1.0-rc3",
+-    nullAway: 'com.uber.nullaway:nullaway:0.3.2',
+     daggerCompiler: "com.google.dagger:dagger-compiler:${versions.dagger}",
+     javapoet: "com.squareup:javapoet:1.9.0",
+     javax: "javax.annotation:jsr250-api:1.0",
+diff --git a/android/libraries/rib-android-test/build.gradle b/android/libraries/rib-android-test/build.gradle
+index a6d9be2..4dcc397 100644
+--- a/android/libraries/rib-android-test/build.gradle
++++ b/android/libraries/rib-android-test/build.gradle
+@@ -35,6 +35,9 @@ android {
+         sourceCompatibility JavaVersion.VERSION_1_7
+         targetCompatibility JavaVersion.VERSION_1_7
+     }
++    lintOptions {
++        abortOnError false
++    }
+ }
+ 
+ dependencies {
+diff --git a/android/libraries/rib-android/build.gradle b/android/libraries/rib-android/build.gradle
+index 6d47039..c88b374 100644
+--- a/android/libraries/rib-android/build.gradle
++++ b/android/libraries/rib-android/build.gradle
+@@ -35,6 +35,9 @@ android {
+         sourceCompatibility JavaVersion.VERSION_1_7
+         targetCompatibility JavaVersion.VERSION_1_7
+     }
++    lintOptions {
++        abortOnError false
++    }
+ }
+ 
+ dependencies {
+diff --git a/android/libraries/rib-screen-stack-base/build.gradle b/android/libraries/rib-screen-stack-base/build.gradle
+index 441cb62..c6abbd9 100644
+--- a/android/libraries/rib-screen-stack-base/build.gradle
++++ b/android/libraries/rib-screen-stack-base/build.gradle
+@@ -35,6 +35,9 @@ android {
+         sourceCompatibility JavaVersion.VERSION_1_7
+         targetCompatibility JavaVersion.VERSION_1_7
+     }
++    lintOptions {
++        abortOnError false
++    }
+ }
+ 
+ dependencies {
+diff --git a/android/libraries/rib-workflow/build.gradle b/android/libraries/rib-workflow/build.gradle
+index a949072..9f7fd94 100644
+--- a/android/libraries/rib-workflow/build.gradle
++++ b/android/libraries/rib-workflow/build.gradle
+@@ -35,6 +35,9 @@ android {
+         sourceCompatibility JavaVersion.VERSION_1_7
+         targetCompatibility JavaVersion.VERSION_1_7
+     }
++    lintOptions {
++        abortOnError false
++    }
+ }
+ 
+ dependencies {
+diff --git a/android/settings.gradle b/android/settings.gradle
+index 31c1a1a..5af3347 100644
+--- a/android/settings.gradle
++++ b/android/settings.gradle
+@@ -10,7 +10,7 @@ include ':libraries:rib-router-navigator'
+ include ':libraries:rib-uava'
+ include ':libraries:rib-workflow'
+ include ':libraries:rib-workflow-test-utils'
+-include ':tooling:rib-intellij-plugin'
++//include ':tooling:rib-intellij-plugin'
+ include ':tooling:autodispose-error-prone-checker'
+ include ':tutorials:tutorial1'
+ include ':tutorials:tutorial2'
+diff --git a/android/tutorials/tutorial1/build.gradle b/android/tutorials/tutorial1/build.gradle
+index fec5565..9ff48b9 100644
+--- a/android/tutorials/tutorial1/build.gradle
++++ b/android/tutorials/tutorial1/build.gradle
+@@ -46,7 +46,6 @@ android {
+ dependencies {
+     annotationProcessor deps.apt.daggerCompiler
+     annotationProcessor project(":libraries:rib-compiler-test")
+-    annotationProcessor deps.apt.nullAway
+     compile project(":libraries:rib-android")
+     compile deps.external.dagger
+     compile deps.external.rxbinding
+@@ -56,13 +55,5 @@ dependencies {
+ }
+ 
+ tasks.withType(JavaCompile) {
+-    // NullAway configuration
+-    if (!name.toLowerCase().contains("test")) {
+-        options.compilerArgs += [
+-                "-Xep:NullAway:ERROR",
+-                "-XepOpt:NullAway:AnnotatedPackages=com.uber",
+-                // Dagger doesn't pass the NullAway checks. So we
+-                // use the following flag to disable Error Prone on generated code.
+-                "-XepExcludedPaths:.*/build/generated/.*"]
+-    }
+-}
++    options.compilerArgs += ["-Xep:CheckReturnValue:OFF"]
++}
+\ No newline at end of file
+diff --git a/android/tutorials/tutorial2/build.gradle b/android/tutorials/tutorial2/build.gradle
+index e5a90bf..dc07d3a 100644
+--- a/android/tutorials/tutorial2/build.gradle
++++ b/android/tutorials/tutorial2/build.gradle
+@@ -46,7 +46,6 @@ android {
+ dependencies {
+     annotationProcessor deps.apt.daggerCompiler
+     annotationProcessor project(":libraries:rib-compiler-test")
+-    annotationProcessor deps.apt.nullAway
+     compile project(":libraries:rib-android")
+     compile 'com.android.support:percent:25.0.1'
+     compile deps.external.dagger
+@@ -59,13 +58,4 @@ dependencies {
+ 
+ tasks.withType(JavaCompile) {
+     options.compilerArgs += ["-Xep:CheckReturnValue:OFF"]
+-    // NullAway configuration
+-    if (!name.toLowerCase().contains("test")) {
+-        options.compilerArgs += [
+-                "-Xep:NullAway:ERROR",
+-                "-XepOpt:NullAway:AnnotatedPackages=com.uber",
+-                // Dagger doesn't pass the NullAway checks. So we
+-                // use the following flag to disable Error Prone on generated code.
+-                "-XepExcludedPaths:.*/build/generated/.*"]
+-    }
+ }

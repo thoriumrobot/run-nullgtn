@@ -1,0 +1,64 @@
+diff --git a/gradle/codeQuality.gradle b/gradle/codeQuality.gradle
+index a80da9a..a8b7bf6 100644
+--- a/gradle/codeQuality.gradle
++++ b/gradle/codeQuality.gradle
+@@ -15,7 +15,6 @@ configurations {
+ }
+ 
+ dependencies {
+-  annotationProcessor annotationProcessors.nullaway
+   checkstyleConfig gradlePlugins.checkstyle
+   errorproneJavac libraries.errorProneJavac
+   errorprone libraries.errorProneCore
+@@ -94,12 +93,6 @@ tasks.withType(JavaCompile) {
+     option('MixedArrayDimensions')
+     option('RemoveUnusedImports')
+   }
+-  if (name == 'compileJava') {
+-    options.errorprone {
+-      option('NullAway', 'ERROR')
+-      option('NullAway:AnnotatedPackages', 'com.github.benmanes.caffeine')
+-    }
+-  }
+ }
+ 
+ tasks.withType(Test) {
+diff --git a/gradle/dependencies.gradle b/gradle/dependencies.gradle
+index c73d38a..36840d8 100644
+--- a/gradle/dependencies.gradle
++++ b/gradle/dependencies.gradle
+@@ -92,9 +92,6 @@ ext {
+     stats: '0.2.2',
+     versions: '0.20.0',
+   ]
+-  annotationProcessorVersions = [
+-    nullaway: '0.6.0',
+-  ]
+ 
+   libraries = [
+     akka: "com.typesafe.akka:akka-actor_2.12:${versions.akka}",
+@@ -197,7 +194,4 @@ ext {
+     stats: "org.kordamp.gradle:stats-gradle-plugin:${pluginVersions.stats}",
+     versions: "com.github.ben-manes:gradle-versions-plugin:${pluginVersions.versions}",
+   ]
+-  annotationProcessors = [
+-    nullaway: "com.uber.nullaway:nullaway:${annotationProcessorVersions.nullaway}",
+-  ]
+ }
+diff --git a/simulator/build.gradle b/simulator/build.gradle
+index 5bd8810..ebfbe17 100644
+--- a/simulator/build.gradle
++++ b/simulator/build.gradle
+@@ -58,12 +58,6 @@ jar.manifest {
+     'com.github.benmanes.caffeine.simulator'
+ }
+ 
+-compileJava {
+-  options.errorprone {
+-    errorproneArgs << '-Xep:NullAway:OFF'
+-  }
+-}
+-
+ tasks.withType(Javadoc) {
+   options.addStringOption('Xdoclint:none', '-quiet')
+   // https://github.com/akka/akka/issues/21165

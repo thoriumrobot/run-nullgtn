@@ -1,0 +1,1 @@
+cd jib-core && ./gradlew --no-build-cache build

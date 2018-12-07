@@ -1,0 +1,135 @@
+diff --git a/skaffold-gradle-plugin/build.gradle b/skaffold-gradle-plugin/build.gradle
+index 11394e8..f4a5c87 100644
+--- a/skaffold-gradle-plugin/build.gradle
++++ b/skaffold-gradle-plugin/build.gradle
+@@ -8,7 +8,6 @@ plugins {
+ 
+     // Error-prone checker
+     id 'net.ltgt.apt' version '0.18'
+-    id 'net.ltgt.errorprone' version '0.0.16'
+ 
+     // Prepare release
+     id 'net.researchgate.release' version '2.7.0'
+@@ -63,10 +62,6 @@ dependencies {
+     testCompile 'org.mockito:mockito-core:2.21.0'
+ 
+     compile gradleApi()
+-
+-    // NullAway errorprone plugin
+-    annotationProcessor 'com.uber.nullaway:nullaway:0.5.2'
+-    errorprone 'com.google.errorprone:error_prone_core:2.3.1'
+ }
+ 
+ task wrapper(type: Wrapper) {
+@@ -87,13 +82,6 @@ test {
+     }
+ }
+ 
+-// Adds NullAway errorprone checks.
+-tasks.withType(JavaCompile) {
+-    if (!name.toLowerCase().contains('test')) {
+-        options.compilerArgs += ['-Xep:NullAway:ERROR', '-XepOpt:NullAway:AnnotatedPackages=com.google.cloud.tools']
+-    }
+-}
+-
+ // Fail build on javadoc warnings
+ tasks.withType(Javadoc) {
+     options.addBooleanOption('Xwerror', true)
+diff --git a/skaffold-maven-plugin/pom.xml b/skaffold-maven-plugin/pom.xml
+index 2057978..4aa1ae5 100644
+--- a/skaffold-maven-plugin/pom.xml
++++ b/skaffold-maven-plugin/pom.xml
+@@ -260,56 +260,6 @@
+         </executions>
+       </plugin>
+ 
+-      <!-- Error-prone checks -->
+-      <plugin>
+-        <groupId>org.apache.maven.plugins</groupId>
+-        <artifactId>maven-compiler-plugin</artifactId>
+-        <version>3.8.0</version>
+-        <executions>
+-          <execution>
+-            <id>compile-with-nullaway</id>
+-            <phase>compile</phase>
+-            <goals>
+-              <goal>compile</goal>
+-            </goals>
+-            <configuration>
+-              <compilerId>javac-with-errorprone</compilerId>
+-              <forceJavacCompilerUse>true</forceJavacCompilerUse>
+-              <!-- maven-compiler-plugin defaults to targeting Java 5, but our javac
+-                   only supports >=6 -->
+-              <source>${maven.compiler.source}</source>
+-              <target>${maven.compiler.target}</target>
+-              <showWarnings>true</showWarnings>
+-              <annotationProcessorPaths>
+-                <path>
+-                  <groupId>com.uber.nullaway</groupId>
+-                  <artifactId>nullaway</artifactId>
+-                  <version>0.5.2</version>
+-                </path>
+-              </annotationProcessorPaths>
+-              <compilerArgs>
+-                <arg>-Xep:NullAway:ERROR</arg>
+-                <arg>-XepOpt:NullAway:AnnotatedPackages=com.google.cloud.tools</arg>
+-              </compilerArgs>
+-            </configuration>
+-          </execution>
+-        </executions>
+-        <dependencies>
+-          <dependency>
+-            <groupId>org.codehaus.plexus</groupId>
+-            <artifactId>plexus-compiler-javac-errorprone</artifactId>
+-            <version>2.8.4</version>
+-          </dependency>
+-          <!-- override plexus-compiler-javac-errorprone's dependency on
+-               Error Prone with the latest version -->
+-          <dependency>
+-            <groupId>com.google.errorprone</groupId>
+-            <artifactId>error_prone_core</artifactId>
+-            <version>2.3.1</version>
+-          </dependency>
+-        </dependencies>
+-      </plugin>
+-
+       <!-- Unit testing -->
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+diff --git a/skaffold-plugins-core/build.gradle b/skaffold-plugins-core/build.gradle
+index 90933ba..8de4e19 100644
+--- a/skaffold-plugins-core/build.gradle
++++ b/skaffold-plugins-core/build.gradle
+@@ -5,7 +5,6 @@ plugins {
+ 
+     // Error-prone checker
+     id 'net.ltgt.apt' version '0.18'
+-    id 'net.ltgt.errorprone' version '0.0.16'
+ }
+ 
+ group 'com.google.cloud.tools'
+@@ -40,10 +39,6 @@ dependencies {
+ 
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.mockito:mockito-core:2.21.0'
+-
+-    // NullAway errorprone plugin
+-    annotationProcessor 'com.uber.nullaway:nullaway:0.5.2'
+-    errorprone 'com.google.errorprone:error_prone_core:2.3.1'
+ }
+ 
+ wrapper {
+@@ -64,13 +59,6 @@ test {
+     }
+ }
+ 
+-// Adds NullAway errorprone checks.
+-tasks.withType(JavaCompile) {
+-    if (!name.toLowerCase().contains('test')) {
+-        options.compilerArgs += ['-Xep:NullAway:ERROR', '-XepOpt:NullAway:AnnotatedPackages=com.google.cloud.tools']
+-    }
+-}
+-
+ // Fail build on javadoc warnings
+ tasks.withType(Javadoc) {
+     options.addBooleanOption('Xwerror', true)

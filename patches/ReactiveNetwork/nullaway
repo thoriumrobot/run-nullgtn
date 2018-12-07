@@ -1,0 +1,13 @@
+diff --git a/build.gradle b/build.gradle
+index 83bc80d..6434740 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -20,7 +20,7 @@ ext.deps = [rxjava2           : 'io.reactivex.rxjava2:rxjava:2.2.2',
+             truth             : 'com.google.truth:truth:0.42',
+             robolectric       : 'org.robolectric:robolectric:4.0-alpha-3',
+             mockitocore       : 'org.mockito:mockito-core:2.22.0',
+-            nullaway          : 'com.uber.nullaway:nullaway:0.5.6',
++            nullaway          : 'com.uber.nullaway:nullaway:0.6.4',
+             errorprone        : 'com.google.errorprone:error_prone_core:2.3.1',
+             ktlintgradle      : 'gradle.plugin.org.jlleitschuh.gradle:ktlint-gradle:4.1.0',
+             kotlinstdlib      : "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion",

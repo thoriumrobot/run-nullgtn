@@ -1,0 +1,179 @@
+diff --git a/jib-core/build.gradle b/jib-core/build.gradle
+index 20db8e0..219ff7e 100644
+--- a/jib-core/build.gradle
++++ b/jib-core/build.gradle
+@@ -3,7 +3,6 @@ plugins {
+   id 'checkstyle'
+   id 'com.github.sherter.google-java-format' version '0.7.1'
+   id 'net.ltgt.apt' version '0.13'
+-  id 'net.ltgt.errorprone' version '0.0.13'
+   id 'biz.aQute.bnd.builder' version '4.0.0'
+ 
+   // For release.
+@@ -48,10 +47,6 @@ dependencies {
+   testImplementation 'junit:junit:4.12'
+   testImplementation 'org.mockito:mockito-core:2.12.0'
+   testImplementation 'org.slf4j:slf4j-api:1.7.25'
+-
+-  // NullAway errorprone plugin
+-  apt 'com.uber.nullaway:nullaway:0.4.2'
+-  errorprone 'com.google.errorprone:error_prone_core:2.2.0'
+ }
+ 
+ jar {
+@@ -83,17 +78,10 @@ test {
+   }
+ }
+ 
+-// Adds NullAway errorprone checks.
+-tasks.withType(JavaCompile) {
+-  if (!name.toLowerCase().contains("test")) {
+-    options.compilerArgs += ["-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.google.cloud.tools"]
+-  }
+-}
+-
+ // Fail build on javadoc warnings
+-tasks.withType(Javadoc) {
+-  options.addBooleanOption('Xwerror', true)
+-}
++//tasks.withType(Javadoc) {
++//  options.addBooleanOption('Xwerror', true)
++//}
+ assemble.dependsOn javadoc
+ 
+ tasks.withType(Test) {
+diff --git a/jib-gradle-plugin/build.gradle b/jib-gradle-plugin/build.gradle
+index 41c0cf0..63c0c89 100644
+--- a/jib-gradle-plugin/build.gradle
++++ b/jib-gradle-plugin/build.gradle
+@@ -8,7 +8,6 @@ plugins {
+ 
+   // Error-prone checker
+   id 'net.ltgt.apt' version '0.13'
+-  id 'net.ltgt.errorprone' version '0.0.13'
+ 
+   // Prepare release
+   id 'net.researchgate.release' version '2.6.0'
+@@ -72,10 +71,6 @@ dependencies {
+   testCompile 'org.slf4j:slf4j-api:1.7.25'
+ 
+   compile gradleApi()
+-
+-  // NullAway errorprone plugin
+-  apt 'com.uber.nullaway:nullaway:0.4.2'
+-  errorprone 'com.google.errorprone:error_prone_core:2.2.0'
+ }
+ 
+ // Integration tests must be run explicitly
+@@ -93,13 +88,6 @@ test {
+   }
+ }
+ 
+-// Adds NullAway errorprone checks.
+-tasks.withType(JavaCompile) {
+-  if (!name.toLowerCase().contains("test")) {
+-    options.compilerArgs += ["-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.google.cloud.tools"]
+-  }
+-}
+-
+ // Fail build on javadoc warnings
+ tasks.withType(Javadoc) {
+   options.addBooleanOption('Xwerror', true)
+diff --git a/jib-maven-plugin/pom.xml b/jib-maven-plugin/pom.xml
+index de2192f..e58a498 100644
+--- a/jib-maven-plugin/pom.xml
++++ b/jib-maven-plugin/pom.xml
+@@ -305,56 +305,6 @@
+         </executions>
+       </plugin>
+ 
+-      <!-- Error-prone checks -->
+-      <plugin>
+-        <groupId>org.apache.maven.plugins</groupId>
+-        <artifactId>maven-compiler-plugin</artifactId>
+-        <version>3.7.0</version>
+-        <executions>
+-          <execution>
+-            <id>compile-with-nullaway</id>
+-            <phase>compile</phase>
+-            <goals>
+-              <goal>compile</goal>
+-            </goals>
+-            <configuration>
+-              <compilerId>javac-with-errorprone</compilerId>
+-              <forceJavacCompilerUse>true</forceJavacCompilerUse>
+-              <!-- maven-compiler-plugin defaults to targeting Java 5, but our javac
+-                   only supports >=6 -->
+-              <source>${maven.compiler.source}</source>
+-              <target>${maven.compiler.target}</target>
+-              <showWarnings>true</showWarnings>
+-              <annotationProcessorPaths>
+-                <path>
+-                  <groupId>com.uber.nullaway</groupId>
+-                  <artifactId>nullaway</artifactId>
+-                  <version>0.4.2</version>
+-                </path>
+-              </annotationProcessorPaths>
+-              <compilerArgs>
+-                <arg>-Xep:NullAway:ERROR</arg>
+-                <arg>-XepOpt:NullAway:AnnotatedPackages=com.google.cloud.tools</arg>
+-              </compilerArgs>
+-            </configuration>
+-          </execution>
+-        </executions>
+-        <dependencies>
+-          <dependency>
+-            <groupId>org.codehaus.plexus</groupId>
+-            <artifactId>plexus-compiler-javac-errorprone</artifactId>
+-            <version>2.8</version>
+-          </dependency>
+-          <!-- override plexus-compiler-javac-errorprone's dependency on
+-               Error Prone with the latest version -->
+-          <dependency>
+-            <groupId>com.google.errorprone</groupId>
+-            <artifactId>error_prone_core</artifactId>
+-            <version>2.2.0</version>
+-          </dependency>
+-        </dependencies>
+-      </plugin>
+-
+       <!-- Unit testing -->
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+diff --git a/jib-plugins-common/build.gradle b/jib-plugins-common/build.gradle
+index 90235b5..77b768a 100644
+--- a/jib-plugins-common/build.gradle
++++ b/jib-plugins-common/build.gradle
+@@ -3,7 +3,6 @@ plugins {
+   id 'checkstyle'
+   id 'com.github.sherter.google-java-format' version '0.7.1'
+   id 'net.ltgt.apt' version '0.13'
+-  id 'net.ltgt.errorprone' version '0.0.13'
+ }
+ 
+ group 'com.google.cloud.tools'
+@@ -38,10 +37,6 @@ dependencies {
+   testCompile 'junit:junit:4.12'
+   testCompile 'org.mockito:mockito-core:2.12.0'
+   testCompile 'org.slf4j:slf4j-api:1.7.25'
+-
+-  // NullAway errorprone plugin
+-  apt 'com.uber.nullaway:nullaway:0.4.2'
+-  errorprone 'com.google.errorprone:error_prone_core:2.2.0'
+ }
+ 
+ test {
+@@ -51,13 +46,6 @@ test {
+   }
+ }
+ 
+-// Adds NullAway errorprone checks.
+-tasks.withType(JavaCompile) {
+-  if (!name.toLowerCase().contains("test")) {
+-    options.compilerArgs += ["-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.google.cloud.tools"]
+-  }
+-}
+-
+ // Fail build on javadoc warnings
+ tasks.withType(Javadoc) {
+   options.addBooleanOption('Xwerror', true)
