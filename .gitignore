@@ -1,4 +1,5 @@
-repos/*
+repos/
+*compile_args/
 *.pyc
 *.log
 *.csv

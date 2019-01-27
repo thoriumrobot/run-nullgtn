@@ -1,1 +1,1 @@
-cd skaffold-plugins-core && ./gradlew --no-build-cache build
+cd skaffold-plugins-core

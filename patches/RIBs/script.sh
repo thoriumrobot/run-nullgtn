@@ -1,1 +1,1 @@
-cd android && ./gradlew --no-build-cache build
+cd android
