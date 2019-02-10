@@ -7,7 +7,7 @@ args_to_remove = ["-g","-Werror","-proc:none","-Xplugin:ErrorProne"]
 EP_args = "-Xep(?!Opt).*|-XepOpt:(?!NullAway:AnnotatedPackages=)"
 NA_paths = ".*/(jetified-)?nullaway-[\w\.]*\.jar$"
 CF_processor_jar = os.path.abspath("cf.jar")
-skip_targets = ["AutoDispose:25","picasso:0","picasso:1"]
+skip_targets = ["AutoDispose:25","picasso:0","picasso:1","caffeine:2"]
 
 def arg_path(repo_url): return arg_prefix+"/"+repo_name(repo_url)+arg_suffix
 
@@ -54,9 +54,10 @@ def prepare_args(args,tool="base"):
 	final_args = args.split()
 	if allWarns: add_arg(final_args,"-Xmaxwarns","10000")
 	if tool=="nullaway": add_arg(final_args,"-na")
-	else: final_args = filter(lambda a: not re.match("-Xep.*",a), final_args)
+	else: final_args = list(filter(lambda a: not re.match("-Xep.*",a), final_args))
+	if tool=="base": add_arg(final_args,"-XepDisableAllChecks")
 	if tool=="checkerframework":
-		last_opt = filter(lambda a: is_opt(a), final_args)[-1]
+		last_opt = list(filter(lambda a: is_opt(a), final_args))[-1]
 		CFpath = os.environ['CHECKERFRAMEWORK']
 		add_arg(final_args,"-processorpath",CFpath+"/checker/dist/checker.jar:"+CF_processor_jar,'prepend',last_opt)
 		add_arg(final_args,"-classpath",CFpath+"/checker/dist/checker-qual.jar",'prepend',last_opt)
@@ -70,7 +71,7 @@ def prepare_args(args,tool="base"):
 processed_suffix = ".clean"
 def process_args_file(repo_url):
 	if not os.path.exists(arg_path(repo_url)): capture_javac_args(repo_url)
-	arg_file = open(arg_path(repo_url)+processed_suffix,"w",0)
+	arg_file = open(arg_path(repo_url)+processed_suffix,"w")
 	name = repo_name(repo_url)
 	for i, args in enumerate(list_from_file(arg_path(repo_url))):
 		if name+":"+str(i) not in skip_targets:

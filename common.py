@@ -1,4 +1,7 @@
-import sys, os.path, subprocess, logging, time, atexit
+import sys
+if sys.version_info[0] < 3:
+	raise Exception("Must use Python 3!")
+import os.path, subprocess, configparser, logging, time, atexit
 
 repo_prefix = "repos"
 log_file = "eval.log"
@@ -12,16 +15,14 @@ arg_prefix = "compile_args"
 arg_suffix = ".arg"
 processors = ["nullaway","base","checkerframework","eradicate"]
 
-nullaway_root = os.path.abspath("../NullAway")
-compile_bench_jar = nullaway_root+"/compile-bench/build/libs/compile-bench.jar"
+config = configparser.ConfigParser()
+config.read('config.ini')
+nullaway_root = os.path.abspath(config.get('PATHS','nullaway'))
 if not os.path.isdir(nullaway_root):
 	exit("Error: NullAway not found!")
-if not os.path.exists(compile_bench_jar):
-	exit("Error: NullAway/compile-bench is not built!")
-
-os.environ["ANDROID_HOME"] = "/usr/lib/android-sdk"
-os.environ["CHECKERFRAMEWORK"] = "/usr/lib/checker-framework-2.5.8"
-os.environ["FB_INFER"] = "/usr/lib/infer-linux64-v0.15.0"
+os.environ["ANDROID_HOME"] = config.get('PATHS','android_sdk')
+os.environ["CHECKERFRAMEWORK"] = config.get('PATHS','checkerframework')
+os.environ["FB_INFER"] = config.get('PATHS','infer')
 
 log = logging.getLogger("log")
 log.setLevel(logging.DEBUG)
@@ -29,7 +30,7 @@ hdlr = logging.FileHandler(log_file)
 hdlr.setFormatter(logging.Formatter('%(asctime)s| %(levelname)s: %(message)s'))
 log.addHandler(hdlr)
 
-def print_and_log(msg): log.info(msg); print "{}\n".format(msg),
+def print_and_log(msg): log.info(msg); print(msg)
 
 def str_from_file(path, default=""):
 	if os.path.exists(path):
@@ -55,14 +56,14 @@ def check_errors():
 def cmd_in_dir(dir, cmd, subdir="", tag="", outlines=20):
 	if not cmd: return
 	try:
-		output = subprocess.check_output("cd "+dir+"/"+subdir+" && "+cmd,shell=True,stderr=subprocess.STDOUT)
+		output = subprocess.check_output("cd "+dir+"/"+subdir+" && "+cmd,shell=True,stderr=subprocess.STDOUT).decode()
 		log.debug("{}| command '{}' output:\n{}".format(tag,cmd,output))
-		return '\n'.join(output.splitlines()[-outlines:])
 	except subprocess.CalledProcessError as e:
-		log.error("{}| command '{}' with return code {}:\n{}".format(tag,e.cmd,e.returncode,e.output))
+		output = e.output.decode()
+		log.error("{}| command '{}' with return code {}:\n{}".format(tag,e.cmd,e.returncode,output))
 		global nerr
 		nerr += 1
-		return '\n'.join(e.output.splitlines()[-outlines:])
+	return '\n'.join(output.splitlines()[-outlines:])
 
 def is_opt(arg): return arg[0]=='-' if arg else False
 
@@ -95,7 +96,7 @@ def clean_repo(repo_url):
 		hash = str_from_file(patch_prefix+"/"+repo_name(repo_url)+"/hash")
 		if hash: cmd_in_repo(repo_url,"git checkout -f "+hash)
 		else: cmd_in_repo(repo_url,"git stash")
-		cmd_in_repo(repo_url,"git clean -fx && cp ../../local.properties . && chmod +x ./gradlew || true")
+		cmd_in_repo(repo_url,"git clean -fx && echo \"sdk.dir = ${ANDROID_HOME}\" > local.properties && chmod +x ./gradlew || true")
 
 def get_repo(repo_url):
 	# if os.path.isdir(repo_dir(repo_url)):
@@ -122,5 +123,5 @@ def apply_patch(repo_url, patch_type=0):
 
 @atexit.register
 def exit_fnc():
-    if nerr: print_and_log(str(nerr)+" errors: Check log!")
+    if nerr: print_and_log(str(nerr)+" errors: Check log! "+os.path.abspath(log_file))
     print_and_log(time.strftime("%H:%M:%S", time.gmtime(time.time()-start_time)))

@@ -28,10 +28,10 @@ def eval_repo(repo_url, tool):
 	return time
 
 if __name__ == "__main__":
-	res = open(stats_file,"a",0)
+	res = open(stats_file,"ab",0)
 	for url in repos:
 		get_repo(url)
 		for tool in tools:
-			res.write(repo_name(url)+","+tool+","+str(eval_repo(url,tool))+"\n")
+			res.write((repo_name(url)+","+tool+",{:.2f}\n".format(eval_repo(url,tool))).encode("utf-8"))
 	res.close()
 	print_and_log(str(ncmd)+" compiles.")

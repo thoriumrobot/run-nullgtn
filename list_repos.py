@@ -8,7 +8,7 @@ def gh_query(query, auth):
     time.sleep(60)
     return gh_query(query, auth)
   else:
-    print response.json()
+    print(response.json())
     exit()
 
 def gh_query_paginated(query, auth):
@@ -27,6 +27,6 @@ for r in results:
   repos[r['repository']['full_name']] = r['repository']['html_url']
 
 repos.pop("uber/NullAway", None)
-print str(len(results)) + " matches\t" + str(len(repos)) + " repos."
+print(str(len(results)) + " matches\t" + str(len(repos)) + " repos.")
 for name, url in repos.items():
-  print url
+  print(url)
