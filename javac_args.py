@@ -65,7 +65,7 @@ def prepare_args(args,tool="base"):
 	if tool == "eradicate":
 		final_args = [a if is_opt(a) or "$" not in a else "'"+a+"'" for a in final_args]
 	final_args = " ".join(final_args)
-	if tool=="eradicate": return infer_cmd+final_args
+	if tool=="eradicate": return infer_cmd+final_args+" && cat infer-out/bugs.txt >> ../infer.log"
 	return (compile_bench_cmd if tool=="checkerframework" else compile_bench_na_cmd)+bench_arg+final_args+"'"
 
 processed_suffix = ".clean"
