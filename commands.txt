@@ -1,0 +1,43 @@
+./mklog caffeine original
+./mklog caffeine modified
+
+./mklog AutoDispose original
+./mklog AutoDispose modified
+
+./mklog butterknife original
+./mklog butterknife modified
+
+./mklog ColdSnap original
+./mklog ColdSnap modified
+
+./mklog jib original
+./mklog jib modified
+
+./mklog keyvaluestore original
+./mklog keyvaluestore modified
+
+./mklog meal-planner original
+./mklog meal-planner modified
+
+./mklog okbuck original
+./mklog okbuck modified
+
+./mklog picasso original
+./mklog picasso modified
+
+./mklog QRContact original
+./mklog QRContact modified
+
+./mklog ReactiveNetwork original
+./mklog ReactiveNetwork modified
+
+./mklog RIBs original
+./mklog RIBs modified
+
+./mklog skaffold-tools-for-java original
+./mklog skaffold-tools-for-java modified
+
+./mklog uLeak original
+./mklog uLeak modified
+
+
