@@ -1,4 +1,0 @@
-> Build Begin - uLeak - nullaway
-[F	[1;32mPASS [0m
-4 compiles.
-00:00:10
