@@ -11,6 +11,52 @@ index 8bd69da..22ad9a6 100755
      daggerCompiler: "com.google.dagger:dagger-compiler:${versions.dagger}",
      javapoet: "com.squareup:javapoet:1.9.0",
      javax: "javax.annotation:jsr250-api:1.0",
+@@ -50,7 +50,7 @@ def build = [
+     intellijPlugin: "gradle.plugin.org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.2.13",
+     errorProne: "com.google.errorprone:error_prone_core:${versions.errorProne}",
+     errorProneCore: "com.google.errorprone:error_prone_core:${versions.errorProne}",
+-    errorProneTestHelpers: "com.google.errorprone:error_prone_test_helpers:${versions.errorProne}",
++    errorProneTestHelpers: "com.google.errorprone:error_prone_test_helpers:${versions.errorProne}",
+     gradlePlugins: [
+-        android: 'com.android.tools.build:gradle:2.3.1',
++        android: 'com.android.tools.build:gradle:3.6.4',
+         errorprone: 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.11'
+     ]
+ ]
+diff --git a/android/build.gradle b/android/build.gradle
+index 6d47039..c88b374 100644
+--- a/android/build.gradle
++++ b/android/build.gradle
+@@ -25,12 +25,12 @@ apply from: 'gradle/dependencies.gradle'
+ subprojects {
+     buildscript {
+         repositories {
+-            jcenter()
++            mavenCentral()
+             maven { url deps.build.gradlePluginsUrl }
+             maven { url "https://maven.google.com" }
+         }
+     }
+ 
+     repositories {
+-        jcenter()
++        mavenCentral()
+         maven { url deps.build.gradlePluginsUrl }
+         maven { url "https://maven.google.com" }
+     }
+diff --git a/android/demos/memory-leaks/build.gradle b/android/demos/memory-leaks/build.gradle
+index a949072..9f7fd94 100644
+--- a/android/demos/memory-leaks/build.gradle
++++ b/android/demos/memory-leaks/build.gradle
+@@ -20,7 +20,7 @@ buildscript {
+ 
+ buildscript {
+     repositories {
+-        jcenter()
++        mavenCentral()
+         maven {
+             url "https://plugins.gradle.org/m2/"
+         }
 diff --git a/android/libraries/rib-android-test/build.gradle b/android/libraries/rib-android-test/build.gradle
 index a6d9be2..4dcc397 100644
 --- a/android/libraries/rib-android-test/build.gradle
@@ -79,4 +125,4 @@ index 31c1a1a..5af3347 100644
 +//include ':tooling:rib-intellij-plugin'
  include ':tooling:autodispose-error-prone-checker'
  include ':tutorials:tutorial1'
- include ':tutorials:tutorial2'
+ include ':tutorials:tutorial2' 
