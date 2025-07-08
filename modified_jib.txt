@@ -1,0 +1,5 @@
+> Build Begin - jib - nullaway
+[F	[1;31mFAIL [0m
+3 compiles.
+1 errors: Check log! /home/thoriumrobot/project/naenv/nullaway-eval/eval.log
+00:00:07

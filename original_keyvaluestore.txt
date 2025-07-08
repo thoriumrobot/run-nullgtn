@@ -1,0 +1,5 @@
+> Build Begin - keyvaluestore - nullaway
+[F	[1;31mFAIL [0m
+5 compiles.
+1 errors: Check log! /home/thoriumrobot/project/naenv/nullaway-eval/eval.log
+00:00:10
