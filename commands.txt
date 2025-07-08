@@ -1,43 +1,43 @@
-./mklog caffeine original
-./mklog caffeine modified
+./mklog.sh caffeine original
+./mklog.sh caffeine modified
 
-./mklog AutoDispose original
-./mklog AutoDispose modified
+./mklog.sh AutoDispose original
+./mklog.sh AutoDispose modified
 
-./mklog butterknife original
-./mklog butterknife modified
+./mklog.sh butterknife original
+./mklog.sh butterknife modified
 
-./mklog ColdSnap original
-./mklog ColdSnap modified
+./mklog.sh ColdSnap original
+./mklog.sh ColdSnap modified
 
-./mklog jib original
-./mklog jib modified
+./mklog.sh jib original
+./mklog.sh jib modified
 
-./mklog keyvaluestore original
-./mklog keyvaluestore modified
+./mklog.sh keyvaluestore original
+./mklog.sh keyvaluestore modified
 
-./mklog meal-planner original
-./mklog meal-planner modified
+./mklog.sh meal-planner original
+./mklog.sh meal-planner modified
 
-./mklog okbuck original
-./mklog okbuck modified
+./mklog.sh okbuck original
+./mklog.sh okbuck modified
 
-./mklog picasso original
-./mklog picasso modified
+./mklog.sh picasso original
+./mklog.sh picasso modified
 
-./mklog QRContact original
-./mklog QRContact modified
+./mklog.sh QRContact original
+./mklog.sh QRContact modified
 
-./mklog ReactiveNetwork original
-./mklog ReactiveNetwork modified
+./mklog.sh ReactiveNetwork original
+./mklog.sh ReactiveNetwork modified
 
-./mklog RIBs original
-./mklog RIBs modified
+./mklog.sh RIBs original
+./mklog.sh RIBs modified
 
-./mklog skaffold-tools-for-java original
-./mklog skaffold-tools-for-java modified
+./mklog.sh skaffold-tools-for-java original
+./mklog.sh skaffold-tools-for-java modified
 
-./mklog uLeak original
-./mklog uLeak modified
+./mklog.sh uLeak original
+./mklog.sh uLeak modified
 
 
