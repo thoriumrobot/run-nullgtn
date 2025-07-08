@@ -1,5 +1,0 @@
-> Build Begin - butterknife - nullaway
-[F	[1;31mFAIL [0m
-17 compiles.
-4 errors: Check log! /home/thoriumrobot/project/naenv/nullaway-eval/eval.log
-00:00:38
