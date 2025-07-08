@@ -1,13 +1,215 @@
 diff --git a/build.gradle b/build.gradle
-index 989b625..5e5607d 100644
+index 989b625..860f8d7 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -53,7 +53,7 @@ ext {
+@@ -29,7 +29,8 @@ apply plugin: 'com.github.sherter.google-java-format'
+ 
+ allprojects {
+     repositories {
+-        jcenter()
++        mavenCentral()
++        maven { url "https://repo.gradle.org/gradle/libs-releases" }
+     }
+ 
+     group = GROUP
+@@ -53,7 +54,7 @@ ext {
      gson = 'com.google.code.gson:gson:2.8.0'
      jackson = 'com.fasterxml.jackson.core:jackson-databind:2.8.7'
      moshi = 'com.squareup.moshi:moshi:1.4.0'
 -    nullAway = 'com.uber.nullaway:nullaway:0.4.6'
-+    nullAway = 'com.uber.nullaway:nullaway:0.6.4'
++    nullAway = "com.uber.nullaway:nullaway:0.6.4"
      bintrayVersion = '1.3.1'
      kotlinPlugin = 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.1.1'
      kotlinStdlib = 'org.jetbrains.kotlin:kotlin-stdlib:1.1.1'
+diff --git a/converters/gson-converter/build.gradle b/converters/gson-converter/build.gradle
+index 8a9b860..3afc08b 100644
+--- a/converters/gson-converter/build.gradle
++++ b/converters/gson-converter/build.gradle
+@@ -16,7 +16,8 @@
+ 
+ buildscript {
+     repositories {
+-        jcenter()
++        mavenCentral()
++        maven { url "https://repo.gradle.org/gradle/libs-releases" }
+         maven {
+             url "https://plugins.gradle.org/m2/"
+         }
+@@ -28,7 +29,6 @@ buildscript {
+ }
+ 
+ plugins {
+-    id 'com.jfrog.bintray' version '1.6'
+     id 'net.ltgt.apt' version '0.13'
+     id 'net.ltgt.errorprone' version '0.0.13'
+     id "org.jetbrains.kotlin.jvm" version "1.2.41"
+@@ -107,25 +107,6 @@ publishing {
+     }
+ }
+ 
+-// Bintray
+-Properties properties = new Properties()
+-properties.load(project.rootProject.file('local.properties').newDataInputStream())
+-
+-bintray {
+-    user = properties.getProperty("bintray.user")
+-    key = properties.getProperty("bintray.apikey")
+-    publications = ['GsonConverter']
+-    pkg {
+-        repo = BINTRAY_REPO
+-        name = BINTRAY_NAME
+-        userOrg = ORGANISATION
+-        licenses = [LICENSE]
+-        desc = DESCRIPTION
+-        websiteUrl = PROJECT_URL
+-        issueTrackerUrl = ISSUE_TRACKER_URL
+-        vcsUrl = PROJECT_URL
+-    }
+-}
+ 
+ tasks.withType(JavaCompile) {
+     // remove the if condition if you want to run NullAway on test code
+diff --git a/converters/jackson-converter/build.gradle b/converters/jackson-converter/build.gradle
+index a6235e7..8145e11 100644
+--- a/converters/jackson-converter/build.gradle
++++ b/converters/jackson-converter/build.gradle
+@@ -16,7 +16,8 @@
+ 
+ buildscript {
+     repositories {
+-        jcenter()
++        mavenCentral()
++        maven { url "https://repo.gradle.org/gradle/libs-releases" }
+         maven {
+             url "https://plugins.gradle.org/m2/"
+         }
+@@ -28,7 +29,6 @@ buildscript {
+ }
+ 
+ plugins {
+-    id 'com.jfrog.bintray' version '1.6'
+     id 'net.ltgt.apt' version '0.13'
+     id 'net.ltgt.errorprone' version '0.0.13'
+     id "org.jetbrains.kotlin.jvm" version "1.2.41"
+@@ -105,25 +105,6 @@ publishing {
+         }
+     }
+ }
+-// Bintray
+-Properties properties = new Properties()
+-properties.load(project.rootProject.file('local.properties').newDataInputStream())
+-
+-bintray {
+-    user = properties.getProperty("bintray.user")
+-    key = properties.getProperty("bintray.apikey")
+-    publications = ['JacksonConverter']
+-    pkg {
+-        repo = BINTRAY_REPO
+-        name = BINTRAY_NAME
+-        userOrg = ORGANISATION
+-        licenses = [LICENSE]
+-        desc = DESCRIPTION
+-        websiteUrl = PROJECT_URL
+-        issueTrackerUrl = ISSUE_TRACKER_URL
+-        vcsUrl = PROJECT_URL
+-    }
+-}
+ 
+ tasks.withType(JavaCompile) {
+     // remove the if condition if you want to run NullAway on test code
+diff --git a/converters/moshi-converter/build.gradle b/converters/moshi-converter/build.gradle
+index b4522e0..284df47 100644
+--- a/converters/moshi-converter/build.gradle
++++ b/converters/moshi-converter/build.gradle
+@@ -16,7 +16,8 @@
+ 
+ buildscript {
+     repositories {
+-        jcenter()
++        mavenCentral()
++        maven { url "https://repo.gradle.org/gradle/libs-releases" }
+         maven {
+             url "https://plugins.gradle.org/m2/"
+         }
+@@ -28,7 +29,6 @@ buildscript {
+ }
+ 
+ plugins {
+-    id 'com.jfrog.bintray' version '1.6'
+     id 'net.ltgt.apt' version '0.13'
+     id 'net.ltgt.errorprone' version '0.0.13'
+     id "org.jetbrains.kotlin.jvm" version "1.2.41"
+@@ -107,25 +107,6 @@ publishing {
+     }
+ }
+ 
+-// Bintray
+-Properties properties = new Properties()
+-properties.load(project.rootProject.file('local.properties').newDataInputStream())
+-
+-bintray {
+-    user = properties.getProperty("bintray.user")
+-    key = properties.getProperty("bintray.apikey")
+-    publications = ['MoshiConverter']
+-    pkg {
+-        repo = BINTRAY_REPO
+-        name = BINTRAY_NAME
+-        userOrg = ORGANISATION
+-        licenses = [LICENSE]
+-        desc = DESCRIPTION
+-        websiteUrl = PROJECT_URL
+-        issueTrackerUrl = ISSUE_TRACKER_URL
+-        vcsUrl = PROJECT_URL
+-    }
+-}
+ 
+ tasks.withType(JavaCompile) {
+     // remove the if condition if you want to run NullAway on test code
+diff --git a/keyvaluestore/build.gradle b/keyvaluestore/build.gradle
+index 055ca79..fc74f13 100644
+--- a/keyvaluestore/build.gradle
++++ b/keyvaluestore/build.gradle
+@@ -16,7 +16,8 @@
+ 
+ buildscript {
+     repositories {
+-        jcenter()
++        mavenCentral()
++        maven { url "https://repo.gradle.org/gradle/libs-releases" }
+         maven {
+             url "https://plugins.gradle.org/m2/"
+         }
+@@ -28,7 +29,6 @@ buildscript {
+ }
+ 
+ plugins {
+-    id 'com.jfrog.bintray' version '1.6'
+     id 'net.ltgt.apt' version '0.13'
+     id 'net.ltgt.errorprone' version '0.0.13'
+     id "org.jetbrains.kotlin.jvm" version "1.2.41"
+@@ -106,25 +106,6 @@ publishing {
+     }
+ }
+ 
+-// Bintray
+-Properties properties = new Properties()
+-properties.load(project.rootProject.file('local.properties').newDataInputStream())
+-
+-bintray {
+-    user = properties.getProperty('bintray.user')
+-    key = properties.getProperty('bintray.apikey')
+-    publications = ['KeyValueStore']
+-    pkg {
+-        repo = BINTRAY_REPO
+-        name = BINTRAY_NAME
+-        userOrg = ORGANISATION
+-        licenses = [LICENSE]
+-        desc = DESCRIPTION
+-        websiteUrl = PROJECT_URL
+-        issueTrackerUrl = ISSUE_TRACKER_URL
+-        vcsUrl = PROJECT_URL
+-    }
+-}
+ 
+ tasks.withType(JavaCompile) {
+     // remove the if condition if you want to run NullAway on test code

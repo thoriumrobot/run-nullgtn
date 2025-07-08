@@ -28,3 +28,25 @@ index 8ba0630..0cefd0a 100644
 diff --git a/gradlew b/gradlew
 old mode 100644
 new mode 100755
+
+diff --git a/build.gradle b/build.gradle
+--- a/build.gradle
++++ b/build.gradle
+@@ -5,3 +5,3 @@
+     repositories {
+         google()
+-        jcenter()
++        mavenCentral()
+     }
+@@ -18,9 +18,4 @@
+ allprojects {
+     repositories {
+         google()
+-        jcenter()
+-        maven()
+-                {
+-                    url "https://maven.google.com"
+-                }
++        mavenCentral()
+     }
+ }
