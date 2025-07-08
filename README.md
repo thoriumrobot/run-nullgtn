@@ -21,6 +21,13 @@ ___
 
 ### Usage ###
 ```
+
+Generate project log:
+
+./mklog.sh <project> <original|modified>
+
+---
+
 python eval_repos.py [options] [tools] [projects]
 
 Options:
