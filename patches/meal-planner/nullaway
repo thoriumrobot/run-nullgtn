@@ -1,13 +1,598 @@
 diff --git a/build.gradle b/build.gradle
-index c0fbb2b..eb96296 100644
+index c0fbb2b..562daa4 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -71,7 +71,7 @@ sourceCompatibility = 1.8
+@@ -71,7 +71,9 @@ sourceCompatibility = 1.8
  targetCompatibility = 1.8
  
  dependencies {
 -  annotationProcessor 'com.uber.nullaway:nullaway:0.4.5'
 +  annotationProcessor 'com.uber.nullaway:nullaway:0.6.4'
++
++  errorprone 'com.google.errorprone:error_prone_core:2.3.1'
  
    compile(
      'org.jsoup:jsoup:1.10.2',
+@@ -95,3 +97,9 @@ dependencies {
+   )
+ }
+ 
++configurations.all {
++  resolutionStrategy {
++    force 'com.google.errorprone:error_prone_core:2.3.1'
++  }
++}
++
+diff --git a/src/main/java/de/zuellich/meal_planner/algorithms/AmountParser.java b/src/main/java/de/zuellich/meal_planner/algorithms/AmountParser.java
+index f5537ee..f3e6705 100644
+--- a/src/main/java/de/zuellich/meal_planner/algorithms/AmountParser.java
++++ b/src/main/java/de/zuellich/meal_planner/algorithms/AmountParser.java
+@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
+ public class AmountParser {
+ 
+   private static final List<String> UNICODE_FRACTIONS = Arrays.asList("½", "¼", "¾");
++
+   /** Stores values for basic fractions like 1/4. */
+   private static final ImmutableMap<String, Float> fractionLookup;
+ 
+@@ -29,6 +30,7 @@ public class AmountParser {
+   }
+ 
+   public static final String CONTAINS_DIGITS_PATTERN = "\\d\\s?[½¼¾]";
++
+   public static final String IS_RANGE_PATTERN = "(\\d+).?-.?\\d+";
+ 
+   /**
+@@ -42,12 +44,10 @@ public class AmountParser {
+     if (raw == null || raw.isEmpty()) {
+       return 0;
+     }
+-
+     final boolean isRange = isRange(raw);
+     if (isRange) {
+       return resolveRange(raw);
+     }
+-
+     final boolean containsUnicodeFractions = containsUnicodeFractions(raw);
+     if (raw.contains("/") || containsUnicodeFractions) {
+       return resolveFraction(raw);
+@@ -61,7 +61,6 @@ public class AmountParser {
+     if (group.find()) {
+       return parseAmount(group.group(1));
+     }
+-
+     return 0;
+   }
+ 
+@@ -97,7 +96,6 @@ public class AmountParser {
+         return true;
+       }
+     }
+-
+     return false;
+   }
+ 
+@@ -109,11 +107,9 @@ public class AmountParser {
+    */
+   private float resolveFraction(final String raw) {
+     final boolean isMixedFraction = raw.matches(CONTAINS_DIGITS_PATTERN);
+-
+     if (!isMixedFraction) {
+       return parsePrimitiveFraction(raw);
+     }
+-
+     return parseMixedUnicodeFraction(raw);
+   }
+ 
+@@ -125,7 +121,6 @@ public class AmountParser {
+    */
+   private float parsePrimitiveFraction(final String raw) {
+     final Float value = fractionLookup.get(raw);
+-
+     if (value == null) {
+       return 0f;
+     } else {
+@@ -142,7 +137,6 @@ public class AmountParser {
+   private float parseMixedUnicodeFraction(final String raw) {
+     String withoutUnicodeFraction = "0";
+     String usedFraction = "";
+-
+     for (final String unicodeFraction : UNICODE_FRACTIONS) {
+       if (raw.contains(unicodeFraction)) {
+         withoutUnicodeFraction = raw.replace(unicodeFraction, "");
+@@ -150,7 +144,6 @@ public class AmountParser {
+         break;
+       }
+     }
+-
+     return Float.parseFloat(withoutUnicodeFraction) + fractionLookup.getOrDefault(usedFraction, 0f);
+   }
+ }
+diff --git a/src/main/java/de/zuellich/meal_planner/algorithms/FormatDetector.java b/src/main/java/de/zuellich/meal_planner/algorithms/FormatDetector.java
+index ff0c0cc..ad61016 100644
+--- a/src/main/java/de/zuellich/meal_planner/algorithms/FormatDetector.java
++++ b/src/main/java/de/zuellich/meal_planner/algorithms/FormatDetector.java
+@@ -6,7 +6,9 @@ import de.zuellich.meal_planner.datatypes.RecipeFormat;
+ public interface FormatDetector {
+ 
+   int NO_UNDERSTANDING = 0;
++
+   int BASIC_UNDERSTANDING = 50;
++
+   int ADVANCED_UNDERSTANDING = 75;
+ 
+   /**
+diff --git a/src/main/java/de/zuellich/meal_planner/algorithms/IngredientMatcher.java b/src/main/java/de/zuellich/meal_planner/algorithms/IngredientMatcher.java
+index 73f127e..40c396a 100644
+--- a/src/main/java/de/zuellich/meal_planner/algorithms/IngredientMatcher.java
++++ b/src/main/java/de/zuellich/meal_planner/algorithms/IngredientMatcher.java
+@@ -44,23 +44,19 @@ public class IngredientMatcher {
+     if (!isMatching) {
+       return new IngredientMatcherResult(false);
+     }
+-
+     final String rawAmount = matchRawAmount(matcher);
+     String rawUnit = matcher.group(2).trim();
+     String rawName = matcher.group(3).trim();
+-
+     // If we have a string without unit like "1 egg" we match the ingredient name as unit. Reverse
+     // this.
+     if (rawName.isEmpty() && !rawUnit.isEmpty()) {
+       rawName = rawUnit;
+       rawUnit = "";
+     }
+-
+     final IngredientUnit unit = tryToMatchUnit(rawUnit);
+     if (unit.equals(IngredientUnit.NULL) && !rawUnit.isEmpty()) {
+       rawName = rawUnit + " " + rawName;
+     }
+-
+     return new IngredientMatcherResult(rawAmount, unit, rawName);
+   }
+ 
+@@ -77,7 +73,6 @@ public class IngredientMatcher {
+     if (amountGroup == null) {
+       return "";
+     }
+-
+     return amountGroup.trim();
+   }
+ 
+diff --git a/src/main/java/de/zuellich/meal_planner/algorithms/IngredientUnitLookup.java b/src/main/java/de/zuellich/meal_planner/algorithms/IngredientUnitLookup.java
+index 622447e..bc6033e 100644
+--- a/src/main/java/de/zuellich/meal_planner/algorithms/IngredientUnitLookup.java
++++ b/src/main/java/de/zuellich/meal_planner/algorithms/IngredientUnitLookup.java
+@@ -11,10 +11,12 @@ import org.springframework.stereotype.Service;
+ @Service
+ public class IngredientUnitLookup {
+ 
+-  @Nullable private static IngredientUnitLookup instance = null;
++  private static IngredientUnitLookup instance = null;
+ 
+   private Map<String, IngredientUnit> byShorthand;
++
+   private Map<String, IngredientUnit> byPlural;
++
+   private Map<String, IngredientUnit> bySingular;
+ 
+   /** Create a new instance and setup the lookup table. */
+@@ -31,7 +33,6 @@ public class IngredientUnitLookup {
+     if (IngredientUnitLookup.instance == null) {
+       IngredientUnitLookup.instance = new IngredientUnitLookup();
+     }
+-
+     return IngredientUnitLookup.instance;
+   }
+ 
+@@ -40,7 +41,6 @@ public class IngredientUnitLookup {
+     this.byShorthand = new HashMap<>(IngredientUnit.values().length);
+     this.byPlural = new HashMap<>(IngredientUnit.values().length);
+     this.bySingular = new HashMap<>(IngredientUnit.values().length);
+-
+     for (final IngredientUnit unit : IngredientUnit.values()) {
+       this.byShorthand.put(unit.getShorthand(), unit);
+       this.byPlural.put(unit.getPlural(), unit);
+@@ -78,11 +78,9 @@ public class IngredientUnitLookup {
+     if (byShorthand(search).isPresent()) {
+       return byShorthand(search);
+     }
+-
+     if (byPlural(search).isPresent()) {
+       return byPlural(search);
+     }
+-
+     return bySingular(search);
+   }
+ 
+diff --git a/src/main/java/de/zuellich/meal_planner/algorithms/NullRecipe.java b/src/main/java/de/zuellich/meal_planner/algorithms/NullRecipe.java
+index 7a83039..bb786b9 100644
+--- a/src/main/java/de/zuellich/meal_planner/algorithms/NullRecipe.java
++++ b/src/main/java/de/zuellich/meal_planner/algorithms/NullRecipe.java
+@@ -5,6 +5,7 @@ import java.util.Collections;
+ 
+ /** */
+ public class NullRecipe extends Recipe {
++
+   public NullRecipe() {
+     super("", Collections.emptyList(), "");
+   }
+diff --git a/src/main/java/de/zuellich/meal_planner/algorithms/PlainTextIngredientScanner.java b/src/main/java/de/zuellich/meal_planner/algorithms/PlainTextIngredientScanner.java
+index f2fb684..2845df0 100644
+--- a/src/main/java/de/zuellich/meal_planner/algorithms/PlainTextIngredientScanner.java
++++ b/src/main/java/de/zuellich/meal_planner/algorithms/PlainTextIngredientScanner.java
+@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
+ public class PlainTextIngredientScanner implements IngredientScanner {
+ 
+   private final AmountParser amountParser;
++
+   private final IngredientUnitLookup ingredientUnitLookup;
+ 
+   @Autowired
+@@ -33,7 +34,6 @@ public class PlainTextIngredientScanner implements IngredientScanner {
+     if (numberOfWhitespaces < 2) {
+       return ImmutableList.of(new Ingredient(source, 0, IngredientUnit.NULL));
+     }
+-
+     int start = 0;
+     int end = 0;
+     for (; end < source.length(); end++) {
+@@ -42,18 +42,14 @@ public class PlainTextIngredientScanner implements IngredientScanner {
+         break;
+       }
+     }
+-
+     final String amount = source.substring(start, end).trim();
+     final float parseAmount = amountParser.parseAmount(amount);
+-
+     start = end;
+     do {
+       end++;
+     } while (source.charAt(end) != ' ');
+-
+     final String unit = source.substring(start, end).trim();
+     final Optional<IngredientUnit> ingredientUnit = ingredientUnitLookup.lookup(unit);
+-
+     final int finalStart = start;
+     final int finalEnd = end;
+     final String ingredientName =
+@@ -61,10 +57,8 @@ public class PlainTextIngredientScanner implements IngredientScanner {
+             .map((notused) -> source.substring(finalEnd))
+             .orElse(source.substring(finalStart))
+             .trim();
+-
+     final Ingredient result =
+         new Ingredient(ingredientName, parseAmount, ingredientUnit.orElse(IngredientUnit.NULL));
+-
+     return ImmutableList.of(result);
+   }
+ 
+diff --git a/src/main/java/de/zuellich/meal_planner/algorithms/RecipeParserFactory.java b/src/main/java/de/zuellich/meal_planner/algorithms/RecipeParserFactory.java
+index 24b0280..a13700a 100644
+--- a/src/main/java/de/zuellich/meal_planner/algorithms/RecipeParserFactory.java
++++ b/src/main/java/de/zuellich/meal_planner/algorithms/RecipeParserFactory.java
+@@ -34,7 +34,6 @@ public class RecipeParserFactory {
+         highestCompatibility = compatibility;
+       }
+     }
+-
+     if (mostCompatibleFormat != null) {
+       return mostCompatibleFormat.getParserInstance();
+     } else {
+diff --git a/src/main/java/de/zuellich/meal_planner/algorithms/RecipeService.java b/src/main/java/de/zuellich/meal_planner/algorithms/RecipeService.java
+index d36bbf8..3ea7c0d 100644
+--- a/src/main/java/de/zuellich/meal_planner/algorithms/RecipeService.java
++++ b/src/main/java/de/zuellich/meal_planner/algorithms/RecipeService.java
+@@ -31,11 +31,9 @@ public class RecipeService {
+     } catch (IOException e) {
+       throw new RecipeParseException("Error fetching recipe.", e);
+     }
+-
+     if (recipeSource.isEmpty()) {
+       throw new RecipeParseException("Recipe source is empty. Error downloading?");
+     }
+-
+     RecipeParser parser = parserFactory.getParser(recipeSource);
+     return parser.parse(recipeSource);
+   }
+diff --git a/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgIngredientScanner.java b/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgIngredientScanner.java
+index ec782fb..3f767fd 100644
+--- a/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgIngredientScanner.java
++++ b/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgIngredientScanner.java
+@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
+ public class SchemaOrgIngredientScanner implements IngredientScanner {
+ 
+   private final IngredientUnitLookup ingredientUnitLookup;
++
+   private final AmountParser amountParser;
+ 
+   /**
+@@ -37,12 +38,10 @@ public class SchemaOrgIngredientScanner implements IngredientScanner {
+   public List<Ingredient> parse(final String source) {
+     final Document document = Jsoup.parse(source);
+     final Elements ingredients = getIngredientElements(document);
+-
+     final List<Ingredient> result = new ArrayList<>(ingredients.size());
+     for (final Element ingredient : ingredients) {
+       result.add(parseIngredient(ingredient));
+     }
+-
+     return result;
+   }
+ 
+@@ -68,12 +67,10 @@ public class SchemaOrgIngredientScanner implements IngredientScanner {
+     final Elements typeElement = ingredient.select(".wprm-recipe-ingredient-name");
+     final Elements amountElement = ingredient.select(".wprm-recipe-ingredient-amount");
+     final Elements ingredientElement = ingredient.select(".wprm-recipe-ingredient-unit");
+-
+     final String type = typeElement.text();
+     final float amount = amountParser.parseAmount(amountElement.text());
+     final Optional<IngredientUnit> ingredientUnit =
+         ingredientUnitLookup.lookup(ingredientElement.text());
+-
+     return new Ingredient(type, amount, ingredientUnit.orElse(IngredientUnit.NULL));
+   }
+ 
+diff --git a/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgJSONLDFormatDetector.java b/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgJSONLDFormatDetector.java
+index 54bf96c..8c3320f 100644
+--- a/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgJSONLDFormatDetector.java
++++ b/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgJSONLDFormatDetector.java
+@@ -28,13 +28,11 @@ public class SchemaOrgJSONLDFormatDetector implements FormatDetector {
+     final Document parse = Jsoup.parse(source);
+     final Elements elementsByAttribute =
+         parse.getElementsByAttributeValue("type", "application/ld+json");
+-
+     final boolean containsRecipeData =
+         elementsByAttribute.size() >= 1 && lookForRecipeInformation(elementsByAttribute);
+     if (containsRecipeData) {
+       return ADVANCED_UNDERSTANDING;
+     }
+-
+     return NO_UNDERSTANDING;
+   }
+ 
+@@ -52,7 +50,6 @@ public class SchemaOrgJSONLDFormatDetector implements FormatDetector {
+         throw new RuntimeException(e);
+       }
+     }
+-
+     return false;
+   }
+ 
+diff --git a/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgJSONLDParser.java b/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgJSONLDParser.java
+index b89a712..fe3c114 100644
+--- a/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgJSONLDParser.java
++++ b/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgJSONLDParser.java
+@@ -44,7 +44,6 @@ public class SchemaOrgJSONLDParser implements RecipeParser {
+     if (!data.has("recipeIngredient")) {
+       return ImmutableList.of();
+     }
+-
+     final JsonNode recipeIngredients = data.get("recipeIngredient");
+     final ImmutableList.Builder<Ingredient> builder = ImmutableList.builder();
+     final Iterator<JsonNode> elements = recipeIngredients.elements();
+@@ -52,7 +51,6 @@ public class SchemaOrgJSONLDParser implements RecipeParser {
+       final JsonNode element = elements.next();
+       builder.add(ingredientScanner.parse(element.textValue().trim()).get(0));
+     }
+-
+     return builder.build();
+   }
+ 
+@@ -67,7 +65,6 @@ public class SchemaOrgJSONLDParser implements RecipeParser {
+         return jsonNode;
+       }
+     }
+-
+     return NullNode.getInstance();
+   }
+ 
+@@ -75,12 +72,10 @@ public class SchemaOrgJSONLDParser implements RecipeParser {
+     if (!jsonData.has("name")) {
+       return "";
+     }
+-
+     final String recipeName = jsonData.get("name").textValue();
+     if (!recipeName.isEmpty()) {
+       return recipeName;
+     }
+-
+     return "";
+   }
+ 
+diff --git a/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgQuirksModeIngredientScanner.java b/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgQuirksModeIngredientScanner.java
+index 8354925..10706c7 100644
+--- a/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgQuirksModeIngredientScanner.java
++++ b/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgQuirksModeIngredientScanner.java
+@@ -43,17 +43,14 @@ public class SchemaOrgQuirksModeIngredientScanner extends SchemaOrgIngredientSca
+     String ingredientDescription = ingredient.text();
+     IngredientMatcher.IngredientMatcherResult result =
+         ingredientMatcher.match(ingredientDescription);
+-
+     float amount = 0;
+     IngredientUnit unit = IngredientUnit.NULL;
+     String name = "";
+-
+     if (result.isMatching()) {
+       amount = getAmountParser().parseAmount(result.getAmount());
+       unit = result.getUnit();
+       name = result.getName();
+     }
+-
+     return new Ingredient(name, amount, unit);
+   }
+ }
+diff --git a/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgRecipeScanner.java b/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgRecipeScanner.java
+index 3b00838..2af391f 100644
+--- a/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgRecipeScanner.java
++++ b/src/main/java/de/zuellich/meal_planner/algorithms/schema_org/SchemaOrgRecipeScanner.java
+@@ -19,10 +19,8 @@ public class SchemaOrgRecipeScanner implements RecipeScanner {
+     Document document = Jsoup.parse(source);
+     Elements recipeRoot =
+         document.getElementsByAttributeValue("itemtype", "http://schema.org/Recipe");
+-
+     String name = parseName(recipeRoot);
+     String url = parseURL(recipeRoot);
+-
+     List<Ingredient> emptyList = Collections.emptyList();
+     return new Recipe(name, emptyList, url);
+   }
+diff --git a/src/main/java/de/zuellich/meal_planner/controller/Parse.java b/src/main/java/de/zuellich/meal_planner/controller/Parse.java
+index 016d749..b7c0cda 100644
+--- a/src/main/java/de/zuellich/meal_planner/controller/Parse.java
++++ b/src/main/java/de/zuellich/meal_planner/controller/Parse.java
+@@ -26,7 +26,6 @@ public class Parse {
+     if (!urlValidator.isValid(url)) {
+       return ResponseEntity.badRequest().build();
+     }
+-
+     Recipe recipe = recipeService.fromURL(url);
+     return ResponseEntity.ok(recipe);
+   }
+diff --git a/src/main/java/de/zuellich/meal_planner/controller/PinterestExplorer.java b/src/main/java/de/zuellich/meal_planner/controller/PinterestExplorer.java
+index 6c2a6e0..4a286ba 100644
+--- a/src/main/java/de/zuellich/meal_planner/controller/PinterestExplorer.java
++++ b/src/main/java/de/zuellich/meal_planner/controller/PinterestExplorer.java
+@@ -25,6 +25,7 @@ public class PinterestExplorer {
+   private final IBoardService service;
+ 
+   private final RecipeService recipeService;
++
+   private final OAuth2RestOperations restTemplate;
+ 
+   @Autowired
+@@ -60,31 +61,24 @@ public class PinterestExplorer {
+   public ResponseEntity<List<Recipe>> getRecipes() throws InterruptedException {
+     List<Board> boards = service.getBoards();
+     List<Recipe> recipes = new ArrayList<>();
+-
+     for (Board board : boards) {
+       System.out.println("Retrieving pins for board: " + board.getName());
+       List<Pin> pins = service.getPins(board.getId());
+-
+       for (Pin pin : pins) {
+         try {
+           System.out.println("\r:: Download pin < " + pin.getOriginalLink() + " >");
+           Recipe recipe = recipeService.fromURL(pin.getOriginalLink());
+-
+           if (recipe.getSource().isEmpty()) {
+             recipe.setSource(pin.getOriginalLink());
+           }
+-
+           recipes.add(recipe);
+-
+           Thread.sleep(100);
+         } catch (RecipeParseException e) {
+           System.out.println("!! Error downloading pin: " + e.getCause().getMessage());
+         }
+       }
+     }
+-
+     System.out.println("\nDone.");
+-
+     return ResponseEntity.ok(recipes);
+   }
+ }
+diff --git a/src/main/java/de/zuellich/meal_planner/datatypes/IngredientUnit.java b/src/main/java/de/zuellich/meal_planner/datatypes/IngredientUnit.java
+index 991fb4e..b5bf644 100644
+--- a/src/main/java/de/zuellich/meal_planner/datatypes/IngredientUnit.java
++++ b/src/main/java/de/zuellich/meal_planner/datatypes/IngredientUnit.java
+@@ -14,7 +14,9 @@ public enum IngredientUnit {
+   CAN("can", "cans", "can");
+ 
+   private final String singular;
++
+   private final String plural;
++
+   private final String shorthand;
+ 
+   /**
+diff --git a/src/main/java/de/zuellich/meal_planner/exception/RecipeParseException.java b/src/main/java/de/zuellich/meal_planner/exception/RecipeParseException.java
+index 686c182..8ccaff1 100644
+--- a/src/main/java/de/zuellich/meal_planner/exception/RecipeParseException.java
++++ b/src/main/java/de/zuellich/meal_planner/exception/RecipeParseException.java
+@@ -2,6 +2,7 @@ package de.zuellich.meal_planner.exception;
+ 
+ /** */
+ public class RecipeParseException extends RuntimeException {
++
+   public RecipeParseException(String message, Throwable cause) {
+     super(message, cause);
+   }
+diff --git a/src/main/java/de/zuellich/meal_planner/pinterest/datatypes/Pin.java b/src/main/java/de/zuellich/meal_planner/pinterest/datatypes/Pin.java
+index 4dc4990..a9cdc8b 100644
+--- a/src/main/java/de/zuellich/meal_planner/pinterest/datatypes/Pin.java
++++ b/src/main/java/de/zuellich/meal_planner/pinterest/datatypes/Pin.java
+@@ -28,7 +28,6 @@ public class Pin {
+     if (metadata == null || !metadata.containsKey("article")) {
+       return;
+     }
+-
+     Map<String, Object> article = (Map<String, Object>) metadata.getOrDefault("article", "");
+     this.name = String.valueOf(article.get("name"));
+   }
+diff --git a/src/main/java/de/zuellich/meal_planner/pinterest/oauth2/ResourceConfiguration.java b/src/main/java/de/zuellich/meal_planner/pinterest/oauth2/ResourceConfiguration.java
+index 5cc6001..d956add 100644
+--- a/src/main/java/de/zuellich/meal_planner/pinterest/oauth2/ResourceConfiguration.java
++++ b/src/main/java/de/zuellich/meal_planner/pinterest/oauth2/ResourceConfiguration.java
+@@ -44,7 +44,6 @@ public class ResourceConfiguration {
+     resourceDetails.setScope(Collections.singletonList("read_public"));
+     resourceDetails.setId("pinterest");
+     resourceDetails.setAuthenticationScheme(AuthenticationScheme.query);
+-
+     return resourceDetails;
+   }
+ 
+@@ -78,7 +77,6 @@ public class ResourceConfiguration {
+     resourceDetails.setScope(Collections.singletonList("read_public"));
+     resourceDetails.setId("pinterest");
+     resourceDetails.setAuthenticationScheme(AuthenticationScheme.query);
+-
+     return new OAuth2RestTemplate(pinterestOAuth2Configuration(), clientContext);
+   }
+ }
+diff --git a/src/main/java/de/zuellich/meal_planner/pinterest/services/BoardService.java b/src/main/java/de/zuellich/meal_planner/pinterest/services/BoardService.java
+index ae9b212..bd6e5e0 100644
+--- a/src/main/java/de/zuellich/meal_planner/pinterest/services/BoardService.java
++++ b/src/main/java/de/zuellich/meal_planner/pinterest/services/BoardService.java
+@@ -48,29 +48,24 @@ public class BoardService implements IBoardService {
+   @Cacheable("pins")
+   public List<Pin> getPins(final String boardId) {
+     final List<Pin> result = new ArrayList<>();
+-
+     String cursor = "";
+     do {
+       String requestURL = BOARDS_PINS;
+       final Map<String, String> requestParameter = new HashMap<>(3);
+       requestParameter.put("id", boardId);
+-
+       if (!cursor.isEmpty()) {
+         requestParameter.put("cursor", cursor);
+         requestURL = BOARDS_PINS_WITH_CURSOR;
+       }
+-
+       final ResponseEntity<PinList> response =
+           restTemplate.getForEntity(requestURL, PinList.class, requestParameter);
+       result.addAll(response.getBody().getPins());
+-
+       if (!response.getBody().getPage().getCursor().isEmpty()) {
+         cursor = response.getBody().getPage().getCursor();
+       } else {
+         cursor = "";
+       }
+     } while (!cursor.isEmpty());
+-
+     return result;
+   }
+ 
+@@ -80,11 +75,9 @@ public class BoardService implements IBoardService {
+     final ResponseEntity<BoardRequest> board =
+         restTemplate.getForEntity(GET_BOARD, BoardRequest.class, boardId);
+     final List<Pin> pins = getPins(boardId);
+-
+     final BoardListing result = new BoardListing();
+     result.setBoard(board.getBody().getBoard());
+     result.setPins(pins);
+-
+     return result;
+   }
+ }
