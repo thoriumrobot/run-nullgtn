@@ -1,0 +1,7 @@
+@ okbuck: applying patch... /home/thoriumrobot/project/naenv/nullaway-eval/patches/okbuck/nullaway
+> Capture javac args - okbuck
+> Build Begin - okbuck - nullaway
+[F	[1;31mFAIL [0m
+0 compiles.
+1 errors: Check log! /home/thoriumrobot/project/naenv/nullaway-eval/eval.log
+00:00:03
