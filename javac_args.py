@@ -79,7 +79,7 @@ def process_args_file(repo_url):
 	arg_file.close()
 
 def capture_javac_args(repo_url):
-	if not apply_patch(repo_url): return
+	#if not apply_patch(repo_url): return
 	print_and_log("> Capture javac args - "+repo_name(repo_url))
 	cmd = str_from_file(patch_prefix+"/"+repo_name(repo_url)+"/"+script_file)
 	cmd += (" && " if cmd else "")+"./gradlew clean && ./gradlew --no-build-cache build -d"

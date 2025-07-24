@@ -104,7 +104,7 @@ def get_repo(repo_url):
 	if not os.path.isdir(repo_dir(repo_url)):
 		print_and_log("@ "+repo_name(repo_url)+": downloading...")
 		cmd_in_dir(".", "git clone "+repo_url+" "+repo_dir(repo_url))
-		clean_repo(repo_url)
+		#clean_repo(repo_url)
 
 def patch_file(repo_url, patch_type):
 	if patch_type < len(processors):
@@ -117,7 +117,7 @@ def apply_patch(repo_url, patch_type=0):
 	patch = patch_file(repo_url, patch_type)
 	if not patch: return False
 	print_and_log("@ "+repo_name(repo_url)+": applying patch... "+ patch)
-	clean_repo(repo_url)
+	#clean_repo(repo_url)
 	cmd_in_repo(repo_url,"git apply "+patch)
 	return True
 
