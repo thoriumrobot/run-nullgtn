@@ -20,6 +20,7 @@ import com.google.cloud.tools.jib.event.events.LogEvent;
 import com.google.cloud.tools.jib.event.events.ProgressEvent;
 import com.google.cloud.tools.jib.event.events.TimerEvent;
 import com.google.common.annotations.VisibleForTesting;
+import javax.annotation.Nullable;
 
 /** Holds references to all {@link JibEvent} types. */
 public class JibEventType<E extends JibEvent> {

@@ -1,4 +1,3 @@
-@ ReactiveNetwork: applying patch... /home/thoriumrobot/project/naenv/nullaway-eval/patches/ReactiveNetwork/nullaway
 > Capture javac args - ReactiveNetwork
 > Build Begin - ReactiveNetwork - nullaway
 [F	[1;31mFAIL [0m

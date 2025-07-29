@@ -1,7 +1,6 @@
-@ RIBs: applying patch... /home/thoriumrobot/project/naenv/nullaway-eval/patches/RIBs/nullaway
 > Capture javac args - RIBs
 > Build Begin - RIBs - nullaway
 [F	[1;31mFAIL [0m
 0 compiles.
-2 errors: Check log! /home/thoriumrobot/project/naenv/nullaway-eval/eval.log
-00:00:03
+1 errors: Check log! /home/thoriumrobot/project/naenv/nullaway-eval/eval.log
+00:00:04
