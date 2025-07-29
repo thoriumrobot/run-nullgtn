@@ -1,6 +1,4 @@
-> Capture javac args - AutoDispose
 > Build Begin - AutoDispose - nullaway
-[F	[1;31mFAIL [0m
-0 compiles.
-1 errors: Check log! /home/thoriumrobot/project/naenv/nullaway-eval/eval.log
-00:00:00
+[F	[1;32mPASS [0m
+9 compiles.
+00:00:32
