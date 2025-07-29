@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.uber.autodispose;
 
 import io.reactivex.CompletableSource;
@@ -22,15 +21,18 @@ import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
 final class AutoDisposeFlowable<T> extends Flowable<T> {
-  private final Publisher<T> source;
-  private final CompletableSource scope;
 
-  AutoDisposeFlowable(Publisher<T> source, CompletableSource scope) {
-    this.source = source;
-    this.scope = scope;
-  }
+    private final Publisher<T> source;
 
-  @Override protected void subscribeActual(Subscriber<? super T> observer) {
-    source.subscribe(new AutoDisposingSubscriberImpl<>(scope, observer));
-  }
+    private final CompletableSource scope;
+
+    AutoDisposeFlowable(Publisher<T> source, CompletableSource scope) {
+        this.source = source;
+        this.scope = scope;
+    }
+
+    @Override
+    protected void subscribeActual(Subscriber<? super T> observer) {
+        source.subscribe(new AutoDisposingSubscriberImpl<>(scope, observer));
+    }
 }

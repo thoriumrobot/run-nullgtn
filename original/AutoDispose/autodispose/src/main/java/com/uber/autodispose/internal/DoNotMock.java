@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.uber.autodispose.internal;
 
 import java.lang.annotation.Documented;
@@ -34,10 +33,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)
 public @interface DoNotMock {
-  /**
-   * The reason why the annotated type should not be mocked.
-   *
-   * <p>This should suggest alternative APIs to use for testing objects of this type.
-   */
-  String value() default "Create a real instance instead";
+
+    /**
+     * The reason why the annotated type should not be mocked.
+     *
+     * <p>This should suggest alternative APIs to use for testing objects of this type.
+     */
+    String value() default "Create a real instance instead";
 }

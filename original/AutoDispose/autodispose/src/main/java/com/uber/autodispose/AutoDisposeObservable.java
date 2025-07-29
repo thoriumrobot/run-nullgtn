@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package com.uber.autodispose;
 
 import io.reactivex.CompletableSource;
@@ -23,16 +22,18 @@ import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 
 final class AutoDisposeObservable<T> extends Observable<T> {
-  private final ObservableSource<T> source;
-  private final CompletableSource scope;
 
-  AutoDisposeObservable(ObservableSource<T> source, CompletableSource scope) {
-    this.source = source;
-    this.scope = scope;
-  }
+    private final ObservableSource<T> source;
 
-  @Override protected void subscribeActual(Observer<? super T> observer) {
-    source.subscribe(new AutoDisposingObserverImpl<>(scope, observer));
-  }
+    private final CompletableSource scope;
+
+    AutoDisposeObservable(ObservableSource<T> source, CompletableSource scope) {
+        this.source = source;
+        this.scope = scope;
+    }
+
+    @Override
+    protected void subscribeActual(Observer<? super T> observer) {
+        source.subscribe(new AutoDisposingObserverImpl<>(scope, observer));
+    }
 }
-

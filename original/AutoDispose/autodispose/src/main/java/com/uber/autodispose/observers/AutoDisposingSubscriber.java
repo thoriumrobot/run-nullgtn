@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.uber.autodispose.observers;
 
 import io.reactivex.FlowableSubscriber;
@@ -27,9 +26,9 @@ import org.reactivestreams.Subscription;
  */
 public interface AutoDisposingSubscriber<T> extends FlowableSubscriber<T>, Subscription, Disposable {
 
-  /**
-   * @return The delegate {@link Subscriber} that is used under the hood for introspection
-   * purposes.
-   */
-  Subscriber<? super T> delegateSubscriber();
+    /**
+     * @return The delegate {@link Subscriber} that is used under the hood for introspection
+     * purposes.
+     */
+    Subscriber<? super T> delegateSubscriber();
 }

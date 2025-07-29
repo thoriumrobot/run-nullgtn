@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.uber.autodispose;
 
 import io.reactivex.Completable;
@@ -29,50 +28,53 @@ import io.reactivex.observers.TestObserver;
  */
 public interface CompletableSubscribeProxy {
 
-  /**
-   * Proxy for {@link Completable#subscribe()}.
-   *
-   * @return a {@link Disposable}
-   */
-  Disposable subscribe();
+    /**
+     * Proxy for {@link Completable#subscribe()}.
+     *
+     * @return a {@link Disposable}
+     */
+    Disposable subscribe();
 
-  /**
-   * Proxy for {@link Completable#subscribe(Action)}.
-   *
-   * @return a {@link Disposable}
-   */
-  Disposable subscribe(Action action);
+    /**
+     * Proxy for {@link Completable#subscribe(Action)}.
+     *
+     * @return a {@link Disposable}
+     */
+    Disposable subscribe(Action action);
 
-  /**
-   * Proxy for {@link Completable#subscribe(Action, Consumer)}.
-   *
-   * @return a {@link Disposable}
-   */
-  Disposable subscribe(Action action, Consumer<? super Throwable> onError);
+    /**
+     * Proxy for {@link Completable#subscribe(Action, Consumer)}.
+     *
+     * @return a {@link Disposable}
+     */
+    Disposable subscribe(Action action, Consumer<? super Throwable> onError);
 
-  /**
-   * Proxy for {@link Completable#subscribe(CompletableObserver)}.
-   */
-  void subscribe(CompletableObserver observer);
+    /**
+     * Proxy for {@link Completable#subscribe(CompletableObserver)}.
+     */
+    void subscribe(CompletableObserver observer);
 
-  /**
-   * Proxy for {@link Completable#subscribeWith(CompletableObserver)}.
-   *
-   * @return a {@link CompletableObserver}
-   */
-  @CheckReturnValue <E extends CompletableObserver> E subscribeWith(E observer);
+    /**
+     * Proxy for {@link Completable#subscribeWith(CompletableObserver)}.
+     *
+     * @return a {@link CompletableObserver}
+     */
+    @CheckReturnValue
+    <E extends CompletableObserver> E subscribeWith(E observer);
 
-  /**
-   * Proxy for {@link Completable#test()}.
-   *
-   * @return a {@link TestObserver}
-   */
-  @CheckReturnValue TestObserver<Void> test();
+    /**
+     * Proxy for {@link Completable#test()}.
+     *
+     * @return a {@link TestObserver}
+     */
+    @CheckReturnValue
+    TestObserver<Void> test();
 
-  /**
-   * Proxy for {@link Completable#test(boolean)}.
-   *
-   * @return a {@link TestObserver}
-   */
-  @CheckReturnValue TestObserver<Void> test(boolean cancel);
+    /**
+     * Proxy for {@link Completable#test(boolean)}.
+     *
+     * @return a {@link TestObserver}
+     */
+    @CheckReturnValue
+    TestObserver<Void> test(boolean cancel);
 }

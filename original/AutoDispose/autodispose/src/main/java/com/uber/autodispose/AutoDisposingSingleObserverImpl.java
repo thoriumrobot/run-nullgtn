@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.uber.autodispose;
 
 import com.uber.autodispose.observers.AutoDisposingSingleObserver;
@@ -25,63 +24,77 @@ import java.util.concurrent.atomic.AtomicReference;
 
 final class AutoDisposingSingleObserverImpl<T> implements AutoDisposingSingleObserver<T> {
 
-  @SuppressWarnings("WeakerAccess") // Package private for synthetic accessor saving
-  final AtomicReference<Disposable> mainDisposable = new AtomicReference<>();
-  @SuppressWarnings("WeakerAccess") // Package private for synthetic accessor saving
-  final AtomicReference<Disposable> scopeDisposable = new AtomicReference<>();
-  private final CompletableSource scope;
-  private final SingleObserver<? super T> delegate;
+    // Package private for synthetic accessor saving
+    @SuppressWarnings("WeakerAccess")
+    final AtomicReference<Disposable> mainDisposable = new AtomicReference<>();
 
-  AutoDisposingSingleObserverImpl(CompletableSource scope, SingleObserver<? super T> delegate) {
-    this.scope = scope;
-    this.delegate = delegate;
-  }
+    // Package private for synthetic accessor saving
+    @SuppressWarnings("WeakerAccess")
+    final AtomicReference<Disposable> scopeDisposable = new AtomicReference<>();
 
-  @Override public SingleObserver<? super T> delegateObserver() {
-    return delegate;
-  }
+    private final CompletableSource scope;
 
-  @Override public void onSubscribe(final Disposable d) {
-    DisposableCompletableObserver o = new DisposableCompletableObserver() {
-      @Override public void onError(Throwable e) {
-        scopeDisposable.lazySet(AutoDisposableHelper.DISPOSED);
-        AutoDisposingSingleObserverImpl.this.onError(e);
-      }
+    private final SingleObserver<? super T> delegate;
 
-      @Override public void onComplete() {
-        scopeDisposable.lazySet(AutoDisposableHelper.DISPOSED);
+    AutoDisposingSingleObserverImpl(CompletableSource scope, SingleObserver<? super T> delegate) {
+        this.scope = scope;
+        this.delegate = delegate;
+    }
+
+    @Override
+    public SingleObserver<? super T> delegateObserver() {
+        return delegate;
+    }
+
+    @Override
+    public void onSubscribe(final Disposable d) {
+        DisposableCompletableObserver o = new DisposableCompletableObserver() {
+
+            @Override
+            public void onError(Throwable e) {
+                scopeDisposable.lazySet(AutoDisposableHelper.DISPOSED);
+                AutoDisposingSingleObserverImpl.this.onError(e);
+            }
+
+            @Override
+            public void onComplete() {
+                scopeDisposable.lazySet(AutoDisposableHelper.DISPOSED);
+                AutoDisposableHelper.dispose(mainDisposable);
+            }
+        };
+        if (AutoDisposeEndConsumerHelper.setOnce(scopeDisposable, o, getClass())) {
+            delegate.onSubscribe(this);
+            scope.subscribe(o);
+            AutoDisposeEndConsumerHelper.setOnce(mainDisposable, d, getClass());
+        }
+    }
+
+    @Override
+    public boolean isDisposed() {
+        return mainDisposable.get() == AutoDisposableHelper.DISPOSED;
+    }
+
+    @Override
+    public void dispose() {
+        AutoDisposableHelper.dispose(scopeDisposable);
         AutoDisposableHelper.dispose(mainDisposable);
-      }
-    };
-    if (AutoDisposeEndConsumerHelper.setOnce(scopeDisposable, o, getClass())) {
-      delegate.onSubscribe(this);
-      scope.subscribe(o);
-      AutoDisposeEndConsumerHelper.setOnce(mainDisposable, d, getClass());
     }
-  }
 
-  @Override public boolean isDisposed() {
-    return mainDisposable.get() == AutoDisposableHelper.DISPOSED;
-  }
-
-  @Override public void dispose() {
-    AutoDisposableHelper.dispose(scopeDisposable);
-    AutoDisposableHelper.dispose(mainDisposable);
-  }
-
-  @Override public void onSuccess(T value) {
-    if (!isDisposed()) {
-      mainDisposable.lazySet(AutoDisposableHelper.DISPOSED);
-      AutoDisposableHelper.dispose(scopeDisposable);
-      delegate.onSuccess(value);
+    @Override
+    public void onSuccess(T value) {
+        if (!isDisposed()) {
+            mainDisposable.lazySet(AutoDisposableHelper.DISPOSED);
+            AutoDisposableHelper.dispose(scopeDisposable);
+            delegate.onSuccess(value);
+        }
     }
-  }
 
-  @Override public void onError(Throwable e) {
-    if (!isDisposed()) {
-      mainDisposable.lazySet(AutoDisposableHelper.DISPOSED);
-      AutoDisposableHelper.dispose(scopeDisposable);
-      delegate.onError(e);
+    @Override
+    public void onError(Throwable e) {
+        if (!isDisposed()) {
+            mainDisposable.lazySet(AutoDisposableHelper.DISPOSED);
+            AutoDisposableHelper.dispose(scopeDisposable);
+            delegate.onError(e);
+        }
     }
-  }
 }

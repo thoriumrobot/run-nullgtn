@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.uber.autodispose;
 
 import com.uber.autodispose.internal.DoNotMock;
@@ -27,15 +26,16 @@ import io.reactivex.annotations.CheckReturnValue;
 @DoNotMock(value = "Use TestScopeProvider instead")
 public interface ScopeProvider {
 
-  /**
-   * A new provider that is "unbound", e.g. will emit a completion event to signal that the
-   * scope is unbound.
-   */
-  ScopeProvider UNBOUND = Completable::never;
+    /**
+     * A new provider that is "unbound", e.g. will emit a completion event to signal that the
+     * scope is unbound.
+     */
+    ScopeProvider UNBOUND = Completable::never;
 
-  /**
-   * @return a {@link CompletableSource} that, upon completion, will trigger disposal.
-   * @throws Exception scope retrievals throws an exception, such as {@link OutsideScopeException}
-   */
-  @CheckReturnValue CompletableSource requestScope() throws Exception;
+    /**
+     * @return a {@link CompletableSource} that, upon completion, will trigger disposal.
+     * @throws Exception scope retrievals throws an exception, such as {@link OutsideScopeException}
+     */
+    @CheckReturnValue
+    CompletableSource requestScope() throws Exception;
 }

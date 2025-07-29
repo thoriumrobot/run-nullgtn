@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.uber.autodispose;
 
 import io.reactivex.Single;
@@ -29,57 +28,60 @@ import io.reactivex.observers.TestObserver;
  */
 public interface SingleSubscribeProxy<T> {
 
-  /**
-   * Proxy for {@link Single#subscribe()}.
-   *
-   * @return a {@link Disposable}
-   */
-  Disposable subscribe();
+    /**
+     * Proxy for {@link Single#subscribe()}.
+     *
+     * @return a {@link Disposable}
+     */
+    Disposable subscribe();
 
-  /**
-   * Proxy for {@link Single#subscribe(Consumer)}.
-   *
-   * @return a {@link Disposable}
-   */
-  Disposable subscribe(Consumer<? super T> onSuccess);
+    /**
+     * Proxy for {@link Single#subscribe(Consumer)}.
+     *
+     * @return a {@link Disposable}
+     */
+    Disposable subscribe(Consumer<? super T> onSuccess);
 
-  /**
-   * Proxy for {@link Single#subscribe(BiConsumer)}.
-   *
-   * @return a {@link Disposable}
-   */
-  Disposable subscribe(BiConsumer<? super T, ? super Throwable> biConsumer);
+    /**
+     * Proxy for {@link Single#subscribe(BiConsumer)}.
+     *
+     * @return a {@link Disposable}
+     */
+    Disposable subscribe(BiConsumer<? super T, ? super Throwable> biConsumer);
 
-  /**
-   * Proxy for {@link Single#subscribe(Consumer, Consumer)}.
-   *
-   * @return a {@link Disposable}
-   */
-  Disposable subscribe(Consumer<? super T> onSuccess, Consumer<? super Throwable> onError);
+    /**
+     * Proxy for {@link Single#subscribe(Consumer, Consumer)}.
+     *
+     * @return a {@link Disposable}
+     */
+    Disposable subscribe(Consumer<? super T> onSuccess, Consumer<? super Throwable> onError);
 
-  /**
-   * Proxy for {@link Single#subscribe(SingleObserver)}.
-   */
-  void subscribe(SingleObserver<? super T> observer);
+    /**
+     * Proxy for {@link Single#subscribe(SingleObserver)}.
+     */
+    void subscribe(SingleObserver<? super T> observer);
 
-  /**
-   * Proxy for {@link Single#subscribeWith(SingleObserver)}.
-   *
-   * @return a {@link SingleObserver}
-   */
-  @CheckReturnValue <E extends SingleObserver<? super T>> E subscribeWith(E observer);
+    /**
+     * Proxy for {@link Single#subscribeWith(SingleObserver)}.
+     *
+     * @return a {@link SingleObserver}
+     */
+    @CheckReturnValue
+    <E extends SingleObserver<? super T>> E subscribeWith(E observer);
 
-  /**
-   * Proxy for {@link Single#test()}.
-   *
-   * @return a {@link TestObserver}
-   */
-  @CheckReturnValue TestObserver<T> test();
+    /**
+     * Proxy for {@link Single#test()}.
+     *
+     * @return a {@link TestObserver}
+     */
+    @CheckReturnValue
+    TestObserver<T> test();
 
-  /**
-   * Proxy for {@link Single#test(boolean)}.
-   *
-   * @return a {@link TestObserver}
-   */
-  @CheckReturnValue TestObserver<T> test(boolean cancel);
+    /**
+     * Proxy for {@link Single#test(boolean)}.
+     *
+     * @return a {@link TestObserver}
+     */
+    @CheckReturnValue
+    TestObserver<T> test(boolean cancel);
 }

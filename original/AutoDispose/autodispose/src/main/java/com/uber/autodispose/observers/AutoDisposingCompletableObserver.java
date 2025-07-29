@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.uber.autodispose.observers;
 
 import io.reactivex.CompletableObserver;
@@ -25,9 +24,9 @@ import io.reactivex.disposables.Disposable;
  */
 public interface AutoDisposingCompletableObserver extends CompletableObserver, Disposable {
 
-  /**
-   * @return The delegate {@link CompletableObserver} that is used under the hood for introspection
-   * purposes.
-   */
-  CompletableObserver delegateObserver();
+    /**
+     * @return The delegate {@link CompletableObserver} that is used under the hood for introspection
+     * purposes.
+     */
+    CompletableObserver delegateObserver();
 }

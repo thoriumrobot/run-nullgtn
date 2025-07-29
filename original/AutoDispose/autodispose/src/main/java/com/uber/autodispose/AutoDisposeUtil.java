@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.uber.autodispose;
 
 import io.reactivex.annotations.Nullable;
 
 final class AutoDisposeUtil {
 
-  private AutoDisposeUtil() {
-    throw new InstantiationError();
-  }
-
-  static <T> T checkNotNull(@Nullable T value, String message) {
-    if (value == null) {
-      throw new NullPointerException(message);
-    } else {
-      return value;
+    private AutoDisposeUtil() {
+        throw new InstantiationError();
     }
-  }
+
+    static <T> T checkNotNull(T value, String message) {
+        if (value == null) {
+            throw new NullPointerException(message);
+        } else {
+            return value;
+        }
+    }
 }

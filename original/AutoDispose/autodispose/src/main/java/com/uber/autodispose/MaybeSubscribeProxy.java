@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.uber.autodispose;
 
 import io.reactivex.Maybe;
@@ -29,57 +28,60 @@ import io.reactivex.observers.TestObserver;
  */
 public interface MaybeSubscribeProxy<T> {
 
-  /**
-   * Proxy for {@link Maybe#subscribe()}.
-   *
-   * @return a {@link Disposable}
-   */
-  Disposable subscribe();
+    /**
+     * Proxy for {@link Maybe#subscribe()}.
+     *
+     * @return a {@link Disposable}
+     */
+    Disposable subscribe();
 
-  /**
-   * Proxy for {@link Maybe#subscribe(Consumer)}.
-   *
-   * @return a {@link Disposable}
-   */
-  Disposable subscribe(Consumer<? super T> onSuccess);
+    /**
+     * Proxy for {@link Maybe#subscribe(Consumer)}.
+     *
+     * @return a {@link Disposable}
+     */
+    Disposable subscribe(Consumer<? super T> onSuccess);
 
-  /**
-   * Proxy for {@link Maybe#subscribe(Consumer, Consumer)}.
-   *
-   * @return a {@link Disposable}
-   */
-  Disposable subscribe(Consumer<? super T> onSuccess, Consumer<? super Throwable> onError);
+    /**
+     * Proxy for {@link Maybe#subscribe(Consumer, Consumer)}.
+     *
+     * @return a {@link Disposable}
+     */
+    Disposable subscribe(Consumer<? super T> onSuccess, Consumer<? super Throwable> onError);
 
-  /**
-   * Proxy for {@link Maybe#subscribe(Consumer, Consumer, Action)}.
-   *
-   * @return a {@link Disposable}
-   */
-  Disposable subscribe(Consumer<? super T> onSuccess, Consumer<? super Throwable> onError, Action onComplete);
+    /**
+     * Proxy for {@link Maybe#subscribe(Consumer, Consumer, Action)}.
+     *
+     * @return a {@link Disposable}
+     */
+    Disposable subscribe(Consumer<? super T> onSuccess, Consumer<? super Throwable> onError, Action onComplete);
 
-  /**
-   * Proxy for {@link Maybe#subscribe(MaybeObserver)}.
-   */
-  void subscribe(MaybeObserver<? super T> observer);
+    /**
+     * Proxy for {@link Maybe#subscribe(MaybeObserver)}.
+     */
+    void subscribe(MaybeObserver<? super T> observer);
 
-  /**
-   * Proxy for {@link Maybe#subscribeWith(MaybeObserver)}.
-   *
-   * @return a {@link MaybeObserver}
-   */
-  @CheckReturnValue <E extends MaybeObserver<? super T>> E subscribeWith(E observer);
+    /**
+     * Proxy for {@link Maybe#subscribeWith(MaybeObserver)}.
+     *
+     * @return a {@link MaybeObserver}
+     */
+    @CheckReturnValue
+    <E extends MaybeObserver<? super T>> E subscribeWith(E observer);
 
-  /**
-   * Proxy for {@link Maybe#test()}.
-   *
-   * @return a {@link TestObserver}
-   */
-  @CheckReturnValue TestObserver<T> test();
+    /**
+     * Proxy for {@link Maybe#test()}.
+     *
+     * @return a {@link TestObserver}
+     */
+    @CheckReturnValue
+    TestObserver<T> test();
 
-  /**
-   * Proxy for {@link Maybe#test(boolean)}.
-   *
-   * @return a {@link TestObserver}
-   */
-  @CheckReturnValue TestObserver<T> test(boolean cancel);
+    /**
+     * Proxy for {@link Maybe#test(boolean)}.
+     *
+     * @return a {@link TestObserver}
+     */
+    @CheckReturnValue
+    TestObserver<T> test(boolean cancel);
 }

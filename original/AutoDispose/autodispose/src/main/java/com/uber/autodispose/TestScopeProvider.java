@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.uber.autodispose;
 
 import io.reactivex.Completable;
@@ -26,41 +25,42 @@ import io.reactivex.subjects.CompletableSubject;
  */
 public final class TestScopeProvider implements ScopeProvider {
 
-  /**
-   * Creates a new provider backed by an internal {@link CompletableSubject}. Useful for stubbing or if you only
-   * want to use the emit APIs
-   *
-   * @return the created TestScopeProvider.
-   */
-  public static TestScopeProvider create() {
-    return create(CompletableSubject.create());
-  }
+    /**
+     * Creates a new provider backed by an internal {@link CompletableSubject}. Useful for stubbing or if you only
+     * want to use the emit APIs
+     *
+     * @return the created TestScopeProvider.
+     */
+    public static TestScopeProvider create() {
+        return create(CompletableSubject.create());
+    }
 
-  /**
-   * Creates a new provider backed by {@code delegate}.
-   *
-   * @param delegate the delegate to back this with.
-   * @return the created TestScopeProvider.
-   */
-  public static TestScopeProvider create(Completable delegate) {
-    return new TestScopeProvider(delegate);
-  }
+    /**
+     * Creates a new provider backed by {@code delegate}.
+     *
+     * @param delegate the delegate to back this with.
+     * @return the created TestScopeProvider.
+     */
+    public static TestScopeProvider create(Completable delegate) {
+        return new TestScopeProvider(delegate);
+    }
 
-  private final CompletableSubject innerScope = CompletableSubject.create();
+    private final CompletableSubject innerScope = CompletableSubject.create();
 
-  @SuppressWarnings("AutoDisposeUsage")
-  private TestScopeProvider(Completable delegate) {
-    delegate.subscribe(innerScope);
-  }
+    @SuppressWarnings("AutoDisposeUsage")
+    private TestScopeProvider(Completable delegate) {
+        delegate.subscribe(innerScope);
+    }
 
-  @Override public CompletableSource requestScope() {
-    return innerScope;
-  }
+    @Override
+    public CompletableSource requestScope() {
+        return innerScope;
+    }
 
-  /**
-   * Emits a success event, just a simple Object.
-   */
-  public void emit() {
-    innerScope.onComplete();
-  }
+    /**
+     * Emits a success event, just a simple Object.
+     */
+    public void emit() {
+        innerScope.onComplete();
+    }
 }

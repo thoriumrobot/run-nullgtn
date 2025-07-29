@@ -13,7 +13,6 @@
  * implied. See
  * the License for the specific language governing permissions and limitations under the License.
  */
-
 package com.uber.autodispose;
 
 import io.reactivex.disposables.Disposable;
@@ -23,37 +22,40 @@ import java.util.concurrent.atomic.AtomicReference;
  * Utility methods for working with Disposables atomically. Copied from the RxJava implementation.
  */
 enum AutoDisposableHelper implements Disposable {
-  /**
-   * The singleton instance representing a terminal, disposed state, don't leak it.
-   */
-  DISPOSED;
 
-  /**
-   * Atomically disposes the Disposable in the field if not already disposed.
-   *
-   * @param field the target field
-   * @return true if the current thread managed to dispose the Disposable
-   */
-  static boolean dispose(AtomicReference<Disposable> field) {
-    Disposable current = field.get();
-    Disposable d = DISPOSED;
-    if (current != d) {
-      current = field.getAndSet(d);
-      if (current != d) {
-        if (current != null) {
-          current.dispose();
+    /**
+     * The singleton instance representing a terminal, disposed state, don't leak it.
+     */
+    DISPOSED;
+
+    /**
+     * Atomically disposes the Disposable in the field if not already disposed.
+     *
+     * @param field the target field
+     * @return true if the current thread managed to dispose the Disposable
+     */
+    static boolean dispose(AtomicReference<Disposable> field) {
+        Disposable current = field.get();
+        Disposable d = DISPOSED;
+        if (current != d) {
+            current = field.getAndSet(d);
+            if (current != d) {
+                if (current != null) {
+                    current.dispose();
+                }
+                return true;
+            }
         }
-        return true;
-      }
+        return false;
     }
-    return false;
-  }
 
-  @Override public void dispose() {
-    // deliberately no-op
-  }
+    @Override
+    public void dispose() {
+        // deliberately no-op
+    }
 
-  @Override public boolean isDisposed() {
-    return true;
-  }
+    @Override
+    public boolean isDisposed() {
+        return true;
+    }
 }

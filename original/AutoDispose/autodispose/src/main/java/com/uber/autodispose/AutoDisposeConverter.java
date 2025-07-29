@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.uber.autodispose;
 
 import io.reactivex.CompletableConverter;
@@ -29,9 +28,5 @@ import io.reactivex.parallel.ParallelFlowableConverter;
  *
  * @param <T> the type.
  */
-public interface AutoDisposeConverter<T> extends FlowableConverter<T, FlowableSubscribeProxy<T>>,
-    ParallelFlowableConverter<T, ParallelFlowableSubscribeProxy<T>>,
-    ObservableConverter<T, ObservableSubscribeProxy<T>>,
-    MaybeConverter<T, MaybeSubscribeProxy<T>>,
-    SingleConverter<T, SingleSubscribeProxy<T>>,
-    CompletableConverter<CompletableSubscribeProxy> {}
+public interface AutoDisposeConverter<T> extends FlowableConverter<T, FlowableSubscribeProxy<T>>, ParallelFlowableConverter<T, ParallelFlowableSubscribeProxy<T>>, ObservableConverter<T, ObservableSubscribeProxy<T>>, MaybeConverter<T, MaybeSubscribeProxy<T>>, SingleConverter<T, SingleSubscribeProxy<T>>, CompletableConverter<CompletableSubscribeProxy> {
+}
