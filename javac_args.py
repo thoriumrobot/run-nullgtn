@@ -79,7 +79,19 @@ def process_args_file(repo_url):
 	arg_file.close()
 
 def capture_javac_args(repo_url):
-	#if not apply_patch(repo_url): return
+	# Check if patch has been applied before
+	patch_marker_file = repo_dir(repo_url) + "/.patch_applied"
+	
+	# Apply patch if it hasn't been applied before
+	if not os.path.exists(patch_marker_file):
+		if apply_patch(repo_url):
+			# Create marker file to indicate patch has been applied
+			with open(patch_marker_file, 'w') as f:
+				f.write("patch applied\n")
+		else:
+			# No patch available, but continue with capture
+			pass
+	
 	print_and_log("> Capture javac args - "+repo_name(repo_url))
 	cmd = str_from_file(patch_prefix+"/"+repo_name(repo_url)+"/"+script_file)
 	cmd += (" && " if cmd else "")+"./gradlew clean && ./gradlew --no-build-cache build -d"
