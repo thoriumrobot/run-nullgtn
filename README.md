@@ -121,6 +121,9 @@ conda activate naenv
 
 sdkmanager --licenses
 
+python eval_repos.py -w -nu
+rm eval.log
+
 ./mklog.sh AutoDispose original
 ./mklog.sh AutoDispose qwen
 
