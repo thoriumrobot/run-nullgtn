@@ -121,9 +121,6 @@ conda activate naenv
 
 sdkmanager --licenses
 
-./mklog.sh caffeine original
-./mklog.sh caffeine qwen
-
 ./mklog.sh AutoDispose original
 ./mklog.sh AutoDispose qwen
 
