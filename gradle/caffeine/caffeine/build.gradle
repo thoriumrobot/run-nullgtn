@@ -1,0 +1,119 @@
+apply from: "${rootDir}/gradle/jmh.gradle"
+apply from: "${projectDir}/testing.gradle"
+
+sourceSets {
+  javaPoet {
+    java.srcDir 'src/javaPoet/java'
+  }
+  main {
+    java.srcDir "${buildDir}/generated-sources/"
+  }
+  codeGen {
+    java.srcDir "${buildDir}/generated-sources/"
+  }
+}
+
+configurations {
+  javaAgent
+}
+
+idea.module {
+  scopes.PROVIDED.plus += [ configurations.javaPoetCompile ]
+}
+
+plugins.withType(EclipsePlugin) {
+  project.eclipse.classpath.plusConfigurations += [ configurations.javaPoetCompile ]
+}
+
+dependencies {
+  compile libraries.checkerAnnotations
+  compile libraries.errorProneAnnotations
+
+  testCompile libraries.ycsb
+  testCompile libraries.guava
+  testCompile libraries.fastutil
+  testCompile testLibraries.junit
+  testCompile testLibraries.testng
+  testCompile testLibraries.jctools
+  testCompile libraries.commonsLang3
+  testCompile testLibraries.guavaTestLib
+
+  javaAgent benchmarkLibraries.jamm
+
+  jmh libraries.flipTables
+  jmh benchmarkLibraries.jamm
+  jmh benchmarkLibraries.tcache
+  jmh benchmarkLibraries.cache2k
+  jmh benchmarkLibraries.ehcache3
+  jmh benchmarkLibraries.koloboke
+  jmh benchmarkLibraries.slf4jNop
+  // jmh benchmarkLibraries.collision
+  jmh benchmarkLibraries.jackrabbit
+  jmh benchmarkLibraries.expiringMap
+  jmh benchmarkLibraries.elasticSearch
+  jmh benchmarkLibraries.concurrentlinkedhashmap
+
+  javaPoetCompile libraries.guava
+  javaPoetCompile libraries.javapoet
+  javaPoetCompile libraries.commonsLang3
+}
+
+compileCodeGenJava {
+  gradle.taskGraph.whenReady {
+    enabled = gradle.taskGraph.hasTask('uploadArchives')
+  }
+  dependsOn compileJava
+  destinationDir = compileJava.destinationDir
+  classpath = sourceSets.main.runtimeClasspath + sourceSets.main.output
+  options.incremental = false
+  options.debug = false
+}
+
+jar.manifest {
+  name 'com.github.ben-manes.caffeine'
+  instruction 'Import-Package',
+    'sun.misc.*;resolution:=optional'
+  instruction 'Export-Package',
+    'com.github.benmanes.caffeine',
+    'com.github.benmanes.caffeine.base',
+    'com.github.benmanes.caffeine.cache',
+    'com.github.benmanes.caffeine.cache.stats'
+  instruction 'Automatic-Module-Name',
+    'com.github.benmanes.caffeine'
+}
+
+jar.dependsOn(compileCodeGenJava)
+
+sonarqube {
+  properties {
+    property "sonar.exclusions", '**/NodeFactory.java, **/LocalCacheFactory.java'
+  }
+}
+
+task generateLocalCaches(type: JavaExec) {
+  main = 'com.github.benmanes.caffeine.cache.LocalCacheFactoryGenerator'
+  classpath = sourceSets.javaPoet.runtimeClasspath
+  args "${buildDir}/generated-sources/"
+  jvmArgs += '-noverify'
+
+  outputs.upToDateWhen { !tasks.compileJavaPoetJava.didWork }
+  outputs.dir "${buildDir}/generated-sources/"
+}
+compileJava.dependsOn(generateLocalCaches)
+
+task generateNodes(type: JavaExec) {
+  main = 'com.github.benmanes.caffeine.cache.NodeFactoryGenerator'
+  classpath = sourceSets.javaPoet.runtimeClasspath
+  args "${buildDir}/generated-sources/"
+  jvmArgs += '-noverify'
+
+  outputs.upToDateWhen { !tasks.compileJavaPoetJava.didWork }
+  outputs.dir "${buildDir}/generated-sources/"
+}
+compileJava.dependsOn(generateNodes)
+
+task memoryOverhead(type: JavaExec, group: 'Benchmarks', description: 'Evaluates cache overhead') {
+  classpath sourceSets.jmh.runtimeClasspath
+  jvmArgs "-javaagent:${configurations.javaAgent.singleFile}"
+  main = 'com.github.benmanes.caffeine.cache.MemoryBenchmark'
+}

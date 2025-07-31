@@ -1,0 +1,105 @@
+description = 'A meal planner application backend.'
+version = '1.0'
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'com.diffplug.gradle.spotless'
+apply plugin: 'findbugs'
+apply plugin: 'net.ltgt.errorprone'
+apply plugin: 'net.ltgt.apt'
+
+spotless {
+  java {
+    googleJavaFormat()
+
+  }
+}
+
+buildscript {
+  repositories {
+    mavenCentral()
+    maven {
+      // Added for net.ltgt.errorprone
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+
+  dependencies {
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.2.RELEASE")
+    classpath("com.diffplug.spotless:spotless-plugin-gradle:3.10.0")
+    classpath("net.ltgt.gradle:gradle-errorprone-plugin:0.0.14")
+    classpath("net.ltgt.gradle:gradle-apt-plugin:0.15")
+    classpath("com.google.errorprone:error_prone_core:2.3.1")
+  }
+}
+
+test {
+  systemProperty "spring.profiles.active", "default,testing"
+}
+
+bootRun {
+  systemProperty "spring.profiles.active", "default,production"
+}
+
+repositories {
+  mavenCentral()
+}
+
+jar {
+  baseName = 'meal-planner-app'
+  version = version
+}
+
+findbugs {
+  effort = "max"
+}
+
+tasks.withType(FindBugs) {
+  reports {
+    xml.enabled false
+    html.enabled true
+  }
+}
+
+tasks.withType(JavaCompile) {
+  if (!name.toLowerCase().contains("test")) {
+    options.compilerArgs += ["-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=de.zuellich"]
+  }
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+  annotationProcessor 'com.uber.nullaway:nullaway:0.6.4'
+
+  errorprone 'com.google.errorprone:error_prone_core:2.3.1'
+
+  compile(
+    'org.jsoup:jsoup:1.10.2',
+    'org.springframework.boot:spring-boot-starter-web',
+    'commons-validator:commons-validator:1.+',
+    'org.springframework.security.oauth:spring-security-oauth2:2.1.1.RELEASE',
+    'com.google.guava:guava:25.0-jre',
+    'com.fasterxml.jackson.core:jackson-core:2.9.5'
+  )
+  compileOnly(
+    'com.google.code.findbugs:jsr305:3.0.2'
+  )
+  testCompile(
+    'junit:junit:4.+',
+    'org.springframework.boot:spring-boot-starter-test',
+    'org.mockito:mockito-core:2.8.9',
+    'org.powermock:powermock-module-junit4:1.+',
+    'org.powermock:powermock-api-mockito2:1.7.+',
+    'com.google.truth:truth:0.40',
+    'com.google.truth.extensions:truth-java8-extension:0.40'
+  )
+}
+
+configurations.all {
+  resolutionStrategy {
+    force 'com.google.errorprone:error_prone_core:2.3.1'
+  }
+}
+

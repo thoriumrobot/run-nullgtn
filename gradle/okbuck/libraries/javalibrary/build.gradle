@@ -1,0 +1,17 @@
+apply plugin: "java-library"
+
+dependencies {
+    implementation deps.external.gson
+    implementation deps.external.dagger
+
+    annotationProcessor deps.apt.javax
+    annotationProcessor deps.apt.daggerCompiler
+
+    compileOnly deps.androidx.annotations
+
+    testImplementation deps.test.junit
+}
+
+test {
+    environment "TEST_ENV", "true"
+}

@@ -1,0 +1,71 @@
+apply plugin: 'com.android.library'
+apply plugin: 'jacoco'
+apply plugin: 'jacoco-android'
+apply plugin: 'net.ltgt.errorprone'
+apply plugin: 'net.ltgt.apt'
+apply from: '../config/quality.gradle'
+apply from: '../maven_push.gradle'
+
+android {
+  compileSdkVersion rootProject.ext.compileSdkVersion
+  buildToolsVersion rootProject.ext.buildToolsVersion
+
+  defaultConfig {
+    minSdkVersion rootProject.ext.minSdkVersion
+    targetSdkVersion rootProject.ext.compileSdkVersion
+    versionCode 1
+    versionName "1.0"
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    }
+
+    debug {
+      minifyEnabled false
+      testCoverageEnabled true
+    }
+  }
+
+  packagingOptions {
+    exclude 'LICENSE.txt'
+    exclude 'META-INF/LICENSE.txt'
+  }
+
+  testOptions {
+    unitTests.all {
+      jacoco {
+        includeNoLocationClasses = true
+      }
+    }
+  }
+}
+
+jacocoAndroidUnitTestReport {
+  csv.enabled false
+  html.enabled true
+  xml.enabled true
+}
+
+dependencies {
+  api deps.rxjava2
+  api deps.rxandroid2
+  implementation deps.supportannotations
+
+  testImplementation deps.junit
+  testImplementation deps.truth
+  testImplementation deps.robolectric
+  testImplementation deps.mockitocore
+
+  annotationProcessor deps.nullaway
+
+  errorprone deps.errorprone
+}
+
+tasks.withType(JavaCompile) {
+  if (!name.toLowerCase().contains("test")) {
+    options.compilerArgs += ["-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.github.pwittchen.reactivenetwork"]
+  }
+}
