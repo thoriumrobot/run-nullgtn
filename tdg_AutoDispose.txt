@@ -1,0 +1,6 @@
+> Capture javac args - AutoDispose
+> Build Begin - AutoDispose - nullaway
+[F	[1;31mFAIL [0m
+0 compiles.
+1 errors: Check log! /home/thoriumrobot/project/naenv/run-nullgtn/run-nullgtn/eval.log
+00:00:00

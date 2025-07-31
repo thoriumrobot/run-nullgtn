@@ -1,0 +1,5 @@
+> Build Begin - butterknife - nullaway
+[F	[1;31mFAIL [0m
+10 compiles.
+6 errors: Check log! /home/thoriumrobot/project/naenv/run-nullgtn/run-nullgtn/eval.log
+00:00:12
