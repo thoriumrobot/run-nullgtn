@@ -1,5 +1,6 @@
 #!/bin/bash
 
+python eval_repos.py -w -nu
 cp -R $2/$1 repos/
 
 rm $2_$1.log compile_args/$1.arg.clean

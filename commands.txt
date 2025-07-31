@@ -13,26 +13,14 @@
 ./mklog.sh jib original
 ./mklog.sh jib qwen
 
-./mklog.sh keyvaluestore original
-./mklog.sh keyvaluestore qwen
-
 ./mklog.sh meal-planner original
 ./mklog.sh meal-planner qwen
-
-./mklog.sh okbuck original
-./mklog.sh okbuck qwen
 
 ./mklog.sh picasso original
 ./mklog.sh picasso qwen
 
 ./mklog.sh QRContact original
 ./mklog.sh QRContact qwen
-
-./mklog.sh ReactiveNetwork original
-./mklog.sh ReactiveNetwork qwen
-
-./mklog.sh RIBs original
-./mklog.sh RIBs qwen
 
 ./mklog.sh skaffold-tools-for-java original
 ./mklog.sh skaffold-tools-for-java qwen
