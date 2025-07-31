@@ -1,0 +1,114 @@
+/*
+ * Copyright (C) 2018 Ludwig
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url "https://repo.gradle.org/gradle/libs-releases" }
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+
+    dependencies {
+        classpath rootProject.ext.kotlinPlugin
+    }
+}
+
+plugins {
+    id 'net.ltgt.apt' version '0.13'
+    id 'net.ltgt.errorprone' version '0.0.13'
+    id "org.jetbrains.kotlin.jvm" version "1.2.41"
+    id 'maven-publish'
+    id 'java'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    apt rootProject.ext.nullAway
+
+    compile project(':keyvaluestore')
+    compileOnly rootProject.ext.jackson
+
+    errorprone rootProject.errorProne
+    errorprone rootProject.checkerFramework
+
+    testCompile rootProject.ext.junit
+    testCompile rootProject.ext.truth
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+publishing {
+    publications {
+        JacksonConverter(MavenPublication) {
+            from components.java
+            groupId GROUP
+            artifactId 'converter-jackson'
+            version VERSION_NAME
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom.withXml {
+                asNode().children().last() + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+                    name 'KeyValueSture Jackson Converter'
+                    description DESCRIPTION
+                    url PROJECT_URL
+                    developers {
+                        developer {
+                            id POM_DEVELOPER_ID
+                            name POM_DEVELOPER_NAME
+                        }
+                    }
+                    licenses {
+                        license {
+                            name POM_LICENCE_NAME
+                            url POM_LICENCE_URL
+                            distribution POM_LICENCE_DIST
+                        }
+                    }
+                    scm {
+                        url PROJECT_URL
+                        connection POM_SCM_CONNECTION
+                        developerConnection POM_SCM_DEV_CONNECTION
+                    }
+                }
+            }
+        }
+    }
+}
+
+tasks.withType(JavaCompile) {
+    // remove the if condition if you want to run NullAway on test code
+    if (!name.toLowerCase().contains("test")) {
+        options.compilerArgs += ["-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.ludwig"]
+    }
+}

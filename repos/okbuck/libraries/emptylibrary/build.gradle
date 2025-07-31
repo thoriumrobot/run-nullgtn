@@ -1,0 +1,22 @@
+apply plugin: "com.android.library"
+
+android {
+    lintOptions {
+        disable "HardcodedDebugMode"
+    }
+    // https://stackoverflow.com/questions/45922916/robolectric-resourcesnotfoundexception-string-resource-id-with-android-gradle
+	testOptions {
+		unitTests {
+			includeAndroidResources = true
+		}
+	}
+}
+
+dependencies {
+    api deps.androidx.appCompat
+
+    compileOnly deps.androidx.multidex
+
+    testImplementation deps.test.junit
+    testImplementation deps.test.robolectric
+}

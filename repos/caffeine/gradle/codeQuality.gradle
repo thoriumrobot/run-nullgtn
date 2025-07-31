@@ -1,0 +1,129 @@
+/**
+ * Configurations for code quality analysis
+ */
+apply plugin: 'org.kordamp.gradle.stats'
+apply plugin: 'com.github.spotbugs'
+apply plugin: 'org.sonarqube'
+apply plugin: 'net.ltgt.apt'
+apply plugin: 'checkstyle'
+apply plugin: 'jacoco'
+apply plugin: 'java'
+apply plugin: 'pmd'
+
+configurations {
+  checkstyleConfig
+}
+
+dependencies {
+  annotationProcessor annotationProcessors.nullaway
+  checkstyleConfig gradlePlugins.checkstyle
+  errorproneJavac libraries.errorProneJavac
+  errorprone libraries.errorProneCore
+}
+
+javadoc.options.links(
+  'https://lightbend.github.io/config/latest/api/',
+  "https://google.github.io/guava/releases/${versions.guava}/api/docs/",
+  "https://docs.oracle.com/javase/${JavaVersion.current().majorVersion}/docs/api/",
+  )
+
+checkstyle {
+  showViolations = true
+  toolVersion = pluginVersions.checkstyle
+  config = resources.text.fromArchiveEntry(configurations.checkstyleConfig, 'google_checks.xml')
+}
+
+spotbugs {
+  effort = 'max'
+  toolVersion = pluginVersions.spotbugs
+  excludeFilter = file("${rootDir}/config/spotbugs/exclude.xml")
+}
+
+pmd {
+  ruleSets = []
+  toolVersion = pluginVersions.pmd
+  ruleSetConfig = resources.text.fromFile(file("${rootDir}/config/pmd/rulesSets.xml"))
+}
+
+jacoco {
+  toolVersion = pluginVersions.jacoco
+}
+
+jacocoTestReport {
+  group = 'Coverage reports'
+  description = 'Generates a test coverage report for a project'
+
+  reports {
+    xml.enabled = true
+    html.enabled = true
+  }
+}
+
+task jacocoMerge(type: JacocoMerge) {
+  executionData tasks.withType(Test)
+
+  doFirst {
+    executionData = files(executionData.findAll { it.exists() })
+  }
+}
+
+sonarqube {
+  properties {
+    property 'sonar.jacoco.reportPath', jacocoMerge.destinationFile
+  }
+}
+tasks.sonarqube.dependsOn(jacocoMerge)
+
+tasks.withType(JavaCompile) {
+  options.encoding = 'UTF-8'
+  options.compilerArgs << '-Xlint:all'
+  // Disable ErrorProne for Java 21 compatibility
+  options.errorprone.enabled = false
+}
+
+tasks.withType(Test) {
+  if (System.properties.containsKey('debug')) {
+    jvmArgs '-Xdebug', '-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005'
+  }
+  options {
+    jvmArgs '-XX:SoftRefLRUPolicyMSPerMB=0', '-XX:+UseParallelGC', '-noverify'
+  }
+  if (System.env.'CI') {
+    maxHeapSize = '512m'
+    reports.html.enabled = false
+  }
+  testLogging {
+    events 'skipped', 'failed'
+    exceptionFormat 'full'
+    showCauses = true
+    showExceptions = true
+    showStackTraces = true
+  }
+}
+
+tasks.withType(Checkstyle) {
+  enabled = System.properties.containsKey('checkstyle')
+  group = 'Checkstyle'
+  reports {
+    xml.enabled = false
+    html.enabled = true
+  }
+}
+
+afterEvaluate {
+  tasks.findAll { it.name.startsWith('spotbugs') }.each {
+    it.enabled = System.properties.containsKey('spotbugs')
+    it.group = 'SpotBugs'
+    it.reports.xml.enabled = false
+    it.reports.html.enabled = true
+  }
+}
+
+tasks.withType(Pmd) {
+  enabled = System.properties.containsKey('pmd')
+  group = 'PMD'
+  reports {
+    xml.enabled = false
+    html.enabled = true
+  }
+}

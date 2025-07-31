@@ -1,0 +1,49 @@
+apply plugin: 'com.android.application'
+
+android {
+  compileSdkVersion rootProject.ext.compileSdkVersion
+  buildToolsVersion rootProject.ext.buildToolsVersion
+
+  defaultConfig {
+    applicationId "com.github.pwittchen.reactivenetwork.app"
+    minSdkVersion rootProject.ext.minSdkVersionApps
+    targetSdkVersion rootProject.ext.compileSdkVersion
+    versionCode 1
+    versionName "1.0"
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled true
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    }
+
+    debug {
+      minifyEnabled false
+    }
+  }
+
+  lintOptions {
+    abortOnError false
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+}
+
+dependencies {
+  implementation project(':library')
+  implementation deps.appcompatv7
+}
+
+buildscript {
+  repositories {
+    mavenCentral()
+    google()
+    maven {
+      url 'https://plugins.gradle.org/m2/'
+    }
+  }
+}

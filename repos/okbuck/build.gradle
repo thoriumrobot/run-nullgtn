@@ -1,0 +1,297 @@
+buildscript {
+    apply from: rootProject.file("dependencies.gradle")
+    repositories {
+        google()
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        gradlePluginPortal()
+        mavenCentral()
+        maven { url "https://groovy.jfrog.io/artifactory/libs-release" }
+    }
+    dependencies {
+        classpath deps.build.androidPlugin
+        classpath deps.build.butterKnifePlugin
+        classpath deps.build.kotlinPlugin
+        classpath deps.build.kotlinAllOpen
+        classpath deps.build.sqlDelightPlugin
+        classpath deps.build.shadowJar
+    }
+    configurations.all {
+        exclude group:"com.android.tools.build", module: "transform-api"
+        resolutionStrategy {
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${deps.versions.kotlin}"
+        }
+    }
+}
+
+allprojects { project ->
+    project.apply from: rootProject.file("dependencies.gradle")
+    repositories {
+        google()
+        maven { url "https://plugins.gradle.org/m2/" }
+        // Remove once butterknife is updated to a stable version
+        // TODO: https://github.com/uber/okbuck/issues/570
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        gradlePluginPortal()
+        mavenCentral()
+        maven { url "https://groovy.jfrog.io/artifactory/libs-release" }
+    }
+    configurations.all {
+        exclude group:"com.android.tools.build", module: "transform-api"
+        resolutionStrategy {
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${deps.versions.kotlin}"
+        }
+    }
+}
+
+apply plugin: "com.uber.okbuck"
+
+subprojects { project ->
+    afterEvaluate {
+        if (project.plugins.hasPlugin("java")) {
+            addCommonConfigurationForJavaModules(project)
+        } else if (project.plugins.hasPlugin("com.android.application")
+                || project.plugins.hasPlugin("com.android.library")) {
+            addCommonConfigurationForAndroidModules(project)
+        }
+
+        project.tasks.withType(Test) { Test task ->
+            task.jvmArgs << "-Djava.awt.headless=true"
+        }
+    }
+}
+
+def addCommonConfigurationForJavaModules(Project project) {
+    project.sourceCompatibility = JavaVersion.VERSION_1_8
+    project.targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+def addCommonConfigurationForAndroidModules(Project project) {
+    project.android {
+        compileSdkVersion config.build.compileSdk
+        buildToolsVersion config.build.buildTools
+
+        defaultConfig {
+            minSdkVersion config.build.minSdk
+            targetSdkVersion config.build.targetSdk
+            vectorDrawables.useSupportLibrary = true
+            versionCode 1
+            versionName "1.0"
+        }
+
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
+        }
+
+        lintOptions {
+            lintConfig project.rootProject.file("lint.xml")
+        }
+    }
+
+    def variants
+    if (project.plugins.hasPlugin("com.android.library") || project.plugins.hasPlugin("com.android.application")) {
+        project.android {
+            signingConfigs {
+                debug {
+                    if (project.path.equals(":kotlin-app")) {
+                        storeFile project.rootProject.file("config/signing/debug_2.keystore")
+                    } else if (project.path.equals(":app")) {
+                        storeFile project.file("debug.keystore")
+                    } else {
+                        storeFile project.rootProject.file("config/signing/debug.keystore")
+                    }
+                }
+            }
+            buildTypes {
+                debug {
+                    signingConfig signingConfigs.debug
+                }
+                release {
+                    signingConfig signingConfigs.debug
+                }
+            }
+        }
+    }
+    if (project.plugins.hasPlugin("com.android.application")) {
+        variants = project.android.applicationVariants
+    } else {
+        variants = project.android.libraryVariants
+    }
+
+    if (project.plugins.hasPlugin("com.squareup.sqldelight")) {
+        variants.all {
+
+            project.android.sourceSets."${it.name}".java.srcDir project.file("build/generated/source/sqldelight")
+            project.android.sourceSets."${it.name}".kotlin.srcDir project.file("build/generated/source/sqldelight")
+
+            project.afterEvaluate { proj ->
+                Task okbuckTask = proj.tasks.getByName("okbuck")
+                Task sqlDelightTask = proj.tasks.getByName("generate${it.name.capitalize()}SqlDelightInterface")
+                okbuckTask.dependsOn(sqlDelightTask)
+            }
+        }
+    }
+}
+
+okbuck {
+    buildToolVersion = config.build.buildTools
+    target = "android-${config.build.compileSdk}"
+
+    extraDepCachesMap << [tools:true]
+
+    primaryDexPatterns = [
+            "app": [
+                    "^com/uber/okbuck/example/AppShell^",
+                    "^com/uber/okbuck/example/BuildConfig^",
+                    "^androidx/multidex/",
+                    "^com/facebook/buck/android/support/exopackage/",
+                    "^com/github/promeg/xlog_android/lib/XLogConfig^",
+                    "^com/squareup/leakcanary/LeakCanary^",
+                    "^com/uber/okbuck/example/common/Calc^",
+                    "^com/uber/okbuck/example/common/BuildConfig^",
+            ]
+    ]
+    exopackage = [
+            "appDevDebug": true
+    ]
+    appLibDependencies = [
+            "appProd": [
+                    "buck-android-support",
+                    "androidx.multidex:multidex",
+                    "libraries/javalibrary:main",
+                    "libraries/common:paidRelease",
+            ],
+            "appDev" : [
+                    "buck-android-support",
+                    "androidx.multidex:multidex",
+                    "libraries/javalibrary:main",
+                    "libraries/common:freeDebug",
+            ],
+            "appDemo": [
+                    "buck-android-support",
+                    "androidx.multidex:multidex",
+                    "libraries/javalibrary:main",
+                    "libraries/common:paidRelease",
+            ]
+    ]
+    buckProjects = project.subprojects.findAll { it.name != "plugin" && it.name != "transform-cli" }
+
+    lintExclude.put("another-app", ["debug"])
+
+    intellij {
+        sources = true
+    }
+
+    test {
+        espresso = true
+        espressoForLibraries = true
+        robolectric = true
+        robolectricApis = ["21", "27"]
+    }
+
+    wrapper {
+        watch += ["**/*.sq"]
+    }
+
+    kotlin {
+        version = deps.versions.kotlin
+    }
+
+    lint {
+        version = deps.versions.androidTools
+        jvmArgs = '-Xmx1g'
+    }
+
+    transform {
+        transforms = [
+                "appProd": [
+                        [transform: "com.uber.okbuck.transform.DummyTransform"]
+                ]
+
+        ]
+    }
+
+    jetifier {
+        aarOnly = true
+        exclude = [
+            "androidx.*"
+        ]
+        customConfigFile = "tooling/jetifier/custom.config"
+    }
+
+    externalDependencies {
+        versionless = true
+        allowLatestVersion = [
+            "com.google.auto.value:auto-value",
+            "com.android.tools:sdklib",
+            "com.google.code.findbugs:jsr305",
+            "com.android.tools.build:manifest-merger",
+            "com.android.tools:dvlib",
+            "org.ow2.asm:asm",
+            "org.ow2.asm:asm-commons",
+            "com.google.protobuf:protobuf-java",
+            "commons-codec:commons-codec",
+            "com.google.errorprone:error_prone_annotations",
+            "com.google.auto:auto-common",
+            "com.android.tools:sdk-common",
+            "com.android.tools.layoutlib:layoutlib-api",
+            "com.google.guava:guava",
+            "com.android.tools:common",
+            "org.apache.httpcomponents:httpcore",
+            "com.android.tools:repository",
+            "org.jetbrains.kotlin:kotlin-stdlib",
+            "org.ow2.asm:asm-tree",
+            "org.apache.httpcomponents:httpclient",
+            "org.bouncycastle:bcprov-jdk15on",
+            "commons-logging:commons-logging",
+            "com.squareup:javapoet",
+            "org.jetbrains.kotlin:kotlin-reflect",
+            "org.checkerframework:checker-compat-qual",
+            "com.google.code.gson:gson",
+            "com.android.tools.build:builder-model",
+            "com.android.tools.ddms:ddmlib",
+            "org.apache.commons:commons-compress",
+            "com.android.tools:annotations",
+            "com.android.tools.build:builder-test-api",
+            "org.apache.httpcomponents:httpmime",
+            "androidx.annotation:annotation",
+        ]
+        allowAllVersions = [
+            "org.robolectric:android-all",
+        ]
+    }
+
+    dependencies {
+        transform project(":dummy-transform")
+    }
+
+    libraryBuildConfig = false
+
+    extraBuckOpts = [
+            "appDebug": [
+                    "android_binary": [
+                            "trim_resource_ids = True"
+                    ]
+            ]
+    ]
+
+    ruleOverrides {
+        defaultImportLocation = "//tooling/buck-defs:project_targets.bzl"
+        defaultRuleNamePrefix = "project_"
+        override {
+            nativeRuleName = "android_binary"
+        }
+    }
+}
+
+afterEvaluate {
+    dependencies {
+        toolsExtraDepCache deps.external.saxon
+    }
+}
+
+gradle.buildFinished {
+    "zip -d .okbuck/ext/org/hamcrest/hamcrest-core.jar LICENSE.txt".execute()
+    "zip -d .okbuck/ext/org/hamcrest/hamcrest-integration.jar LICENSE.txt".execute()
+}

@@ -1,0 +1,103 @@
+{
+  "data": [
+    {
+      "note": "Zart geschmortes Rindfleisch, Wurzelgemüse und ein großzügiger Schuss Guinness verleihen diesem Wohlfühl-Gericht seinen unwiderstehlichen Geschmack.",
+      "url": "https://www.pinterest.com/pin/570479477788387803/",
+      "original_link": "https://www.springlane.de/magazin/rezeptideen/irischer-rindfleischeintopf-mit-guinness/?utm_source=pinterest&utm_medium=social&utm_campaign=post",
+      "id": "570479477788387803",
+      "metadata": {
+        "article": {
+          "published_at": "2015-03-02T00:00:00",
+          "description": "Zart geschmortes Rindfleisch, Wurzelgemüse und ein großzügiger Schuss Guinness verleihen diesem Wohlfühl-Gericht seinen unwiderstehlichen Geschmack.",
+          "name": "Irischer Rindfleischeintopf mit Guinness",
+          "authors": []
+        },
+        "originalLink": {
+          "locale": "de_DE",
+          "title": "Irischer Rindfleischeintopf mit Guinness",
+          "site_name": "Springlane",
+          "description": "Zart geschmortes Rindfleisch, Wurzelgemüse und ein großzügiger Schuss Guinness verleihen diesem Wohlfühl-Gericht seinen unwiderstehlichen Geschmack.",
+          "favicon": "https://s-media-cache-ak0.pinimg.com/favicons/8c91bf3f02b053fdf1feb3ecde4efeef9d280361db634caf8631c657.png?0ba567ff6adadd151741b91436837e6d"
+        },
+        "recipe": {
+          "servings": {
+            "yields": "8",
+            "summary": "Makes 8"
+          },
+          "name": "Irischer Rindfleischeintopf mit Guinness",
+          "ingredients": [
+            {
+              "category": "Ingredients",
+              "ingredients": [
+                {
+                  "amount": null,
+                  "name": "800 g Rindergulasch"
+                },
+                {
+                  "amount": null,
+                  "name": "250 ml Guinness"
+                },
+                {
+                  "amount": null,
+                  "name": "1 l Rinderfond"
+                },
+                {
+                  "amount": null,
+                  "name": "6 Esslöffel Mehl"
+                },
+                {
+                  "amount": null,
+                  "name": "3 Esslöffel Olivenöl"
+                },
+                {
+                  "amount": null,
+                  "name": "5 Möhren, in Scheiben geschnitten"
+                },
+                {
+                  "amount": null,
+                  "name": "2 Stängel Staudensellerie, in kleine Stücke geschnitten"
+                },
+                {
+                  "amount": null,
+                  "name": "1 Zwiebel, in feine Ringe geschnitten"
+                },
+                {
+                  "amount": null,
+                  "name": "6 Knoblauchzehen, fein gehackt"
+                },
+                {
+                  "amount": null,
+                  "name": "500 g Champignons, in Scheiben geschnitten"
+                },
+                {
+                  "amount": null,
+                  "name": "1 Teelöffel Worcestershiresauce"
+                },
+                {
+                  "amount": null,
+                  "name": "1/2 Teelöffel Sahne-Meerrettich"
+                },
+                {
+                  "amount": null,
+                  "name": "1/4 Teelöffel frisch gemahlener schwarzer Pfeffer"
+                },
+                {
+                  "amount": null,
+                  "name": "400 g kleine Kartoffeln, geviertelt"
+                },
+                {
+                  "amount": null,
+                  "name": "1 Teelöffel Ahornsirup"
+                },
+                {
+                  "amount": null,
+                  "name": "4 Zweige Thymian"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

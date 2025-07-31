@@ -1,0 +1,14 @@
+{
+  "data": [
+    {
+      "url": "https://www.pinterest.com/auser/board-name1/",
+      "id": "1",
+      "name": "Board Name 1"
+    },
+    {
+      "url": "https://www.pinterest.com/auser/board2/",
+      "id": "2",
+      "name": "Board2"
+    }
+  ]
+}
