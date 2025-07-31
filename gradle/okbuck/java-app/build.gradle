@@ -1,0 +1,11 @@
+apply plugin: "java-library"
+apply plugin: "application"
+
+mainClassName = 'com.uber.okbuck.example.javalib.DummyJavaClass'
+
+dependencies {
+    implementation deps.external.gson
+    implementation deps.external.dagger
+    implementation deps.external.avroIpc
+    implementation deps.external.avroIpcTests
+}

@@ -1,0 +1,93 @@
+/**
+ * JCache compatibility adapter.
+ */
+configurations {
+  tck
+  doc
+}
+
+dependencies {
+  compile project(':caffeine')
+  compile libraries.jcache
+  compile libraries.config
+  compile libraries.jsr330
+
+  testCompile libraries.guava
+  testCompile testLibraries.junit
+  testCompile testLibraries.testng
+  testCompile testLibraries.mockito
+  testCompile testLibraries.hamcrest
+  testCompile testLibraries.jcacheTck
+  testCompile testLibraries.jcacheTckTests
+  testCompile testLibraries.jcacheGuice
+  testCompile testLibraries.guavaTestLib
+
+  tck dependencies.create(testLibraries.jcacheTckTests) {
+    transitive = false
+  }
+
+  doc "${libraries.jcache}:javadoc"
+}
+
+jar.manifest {
+  name 'com.github.ben-manes.caffeine.jcache'
+  instruction 'Import-Package',
+    'javax.cache.*',
+    'javax.management',
+    'com.typesafe.config',
+    'com.github.benmanes.caffeine.cache',
+    'com.github.benmanes.caffeine.cache.stats'
+  instruction 'Export-Package',
+    'com.github.benmanes.caffeine.jcache.spi',
+    'com.github.benmanes.caffeine.jcache.copy',
+    'com.github.benmanes.caffeine.jcache.configuration'
+  instruction 'Automatic-Module-Name',
+    'com.github.benmanes.caffeine.jcache'
+}
+
+task unzipJCacheJavaDoc(type: Copy, group: 'Build', description: 'Unzips the JCache JavaDoc') {
+  from configurations.doc.collect { zipTree(it) }
+  into { "${buildDir}/jcache-docs" }
+}
+
+javadoc.dependsOn(unzipJCacheJavaDoc)
+javadoc.options.addStringOption('Xdoclint:none', '-quiet')
+javadoc.options.linksOffline(
+  "http://static.javadoc.io/javax.cache/cache-api/${versions.jcache}/",
+  "${buildDir}/jcache-docs",
+)
+
+test {
+  useTestNG()
+}
+
+task unzipTestKit(type: Copy, group: 'Build', description: 'Unzips the JCache TCK') {
+  from configurations.tck.collect { zipTree(it) }
+  into { "${buildDir}/tck" }
+}
+
+task testCompatibilityKit(type: Test, group: 'Build', description: 'Runs the JCache TCK') {
+  dependsOn(unzipTestKit)
+  onlyIf { compileTestJava.didWork || unzipTestKit.didWork }
+
+  useJUnit()
+  testClassesDirs = files("${buildDir}/tck")
+
+  def pkg = 'com.github.benmanes.caffeine.jcache'
+  systemProperty 'java.net.preferIPv4Stack', 'true'
+  systemProperty 'javax.cache.Cache', "${pkg}.CacheProxy"
+  systemProperty 'javax.cache.Cache.Entry', "${pkg}.EntryProxy"
+  systemProperty 'javax.cache.CacheManager', "${pkg}.CacheManagerImpl"
+  systemProperty 'org.jsr107.tck.management.agentId', 'CaffeineMBeanServer'
+  systemProperty 'javax.management.builder.initial', "${pkg}.management.JCacheMBeanServerBuilder"
+}
+test.dependsOn(testCompatibilityKit)
+
+task osgiTests(type: Test, group: 'Build', description: 'Isolated OSGi tests') {
+  useJUnit()
+  tasks.test.dependsOn(it)
+  systemProperty 'config.osgi.version', versions.config
+  systemProperty 'jcache.osgi.version', versions.jcache
+  systemProperty 'caffeine.osgi.jar', project(':caffeine').jar.archivePath.path
+  systemProperty 'caffeine-jcache.osgi.jar', project(':jcache').jar.archivePath.path
+}
