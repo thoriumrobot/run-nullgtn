@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  */
+
 package com.uber.autodispose;
 
 import io.reactivex.CompletableSource;
@@ -22,18 +23,16 @@ import io.reactivex.MaybeObserver;
 import io.reactivex.MaybeSource;
 
 final class AutoDisposeMaybe<T> extends Maybe<T> {
+  private final MaybeSource<T> source;
+  private final CompletableSource scope;
 
-    private final MaybeSource<T> source;
+  AutoDisposeMaybe(MaybeSource<T> source, CompletableSource scope) {
+    this.source = source;
+    this.scope = scope;
+  }
 
-    private final CompletableSource scope;
-
-    AutoDisposeMaybe(MaybeSource<T> source, CompletableSource scope) {
-        this.source = source;
-        this.scope = scope;
-    }
-
-    @Override
-    protected void subscribeActual(MaybeObserver<? super T> observer) {
-        source.subscribe(new AutoDisposingMaybeObserverImpl<>(scope, observer));
-    }
+  @Override protected void subscribeActual(MaybeObserver<? super T> observer) {
+    source.subscribe(new AutoDisposingMaybeObserverImpl<>(scope, observer));
+  }
 }
+

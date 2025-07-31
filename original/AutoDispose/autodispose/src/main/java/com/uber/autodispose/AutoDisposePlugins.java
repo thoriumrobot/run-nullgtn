@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.uber.autodispose;
 
 import io.reactivex.annotations.Nullable;
@@ -23,78 +24,76 @@ import io.reactivex.functions.Consumer;
  */
 public final class AutoDisposePlugins {
 
-    private AutoDisposePlugins() {
+  private AutoDisposePlugins() { }
+
+  @Nullable private static volatile Consumer<? super OutsideScopeException> outsideScopeHandler;
+  private static volatile boolean fillInOutsideScopeExceptionStacktraces;
+
+  /**
+   * Prevents changing the plugins.
+   */
+  static volatile boolean lockdown;
+
+  /**
+   * Prevents changing the plugins from then on.
+   * <p>
+   * This allows container-like environments to prevent client messing with plugins.
+   */
+  public static void lockdown() {
+    lockdown = true;
+  }
+
+  /**
+   * Returns true if the plugins were locked down.
+   *
+   * @return true if the plugins were locked down
+   */
+  public static boolean isLockdown() {
+    return lockdown;
+  }
+
+  /**
+   * @return the value indicating whether or not to fill in stacktraces in
+   * {@link OutsideScopeException}.
+   */
+  public static boolean getFillInOutsideScopeExceptionStacktraces() {
+    return fillInOutsideScopeExceptionStacktraces;
+  }
+
+  /**
+   * @return the value for handling {@link OutsideScopeException}.
+   */
+  @Nullable public static Consumer<? super OutsideScopeException> getOutsideScopeHandler() {
+    return outsideScopeHandler;
+  }
+
+  /**
+   * @param handler the consumer for handling {@link OutsideScopeException} to set, null allowed
+   */
+  public static void setOutsideScopeHandler(@Nullable Consumer<? super OutsideScopeException> handler) {
+    if (lockdown) {
+      throw new IllegalStateException("Plugins can't be changed anymore");
     }
+    outsideScopeHandler = handler;
+  }
 
-    private static volatile Consumer<? super OutsideScopeException> outsideScopeHandler;
-
-    private static volatile boolean fillInOutsideScopeExceptionStacktraces;
-
-    /**
-     * Prevents changing the plugins.
-     */
-    static volatile boolean lockdown;
-
-    /**
-     * Prevents changing the plugins from then on.
-     * <p>
-     * This allows container-like environments to prevent client messing with plugins.
-     */
-    public static void lockdown() {
-        lockdown = true;
+  /**
+   * @param fillInStacktrace {@code true} to fill in stacktraces in
+   * {@link OutsideScopeException}s. {@code false} to disable them (and use them as signals
+   * only). Disabling them, if you don't care about the stacktraces, can result in some minor
+   * performance improvements.
+   */
+  public static void setFillInOutsideScopeExceptionStacktraces(boolean fillInStacktrace) {
+    if (lockdown) {
+      throw new IllegalStateException("Plugins can't be changed anymore");
     }
+    fillInOutsideScopeExceptionStacktraces = fillInStacktrace;
+  }
 
-    /**
-     * Returns true if the plugins were locked down.
-     *
-     * @return true if the plugins were locked down
-     */
-    public static boolean isLockdown() {
-        return lockdown;
-    }
-
-    /**
-     * @return the value indicating whether or not to fill in stacktraces in
-     * {@link OutsideScopeException}.
-     */
-    public static boolean getFillInOutsideScopeExceptionStacktraces() {
-        return fillInOutsideScopeExceptionStacktraces;
-    }
-
-    /**
-     * @return the value for handling {@link OutsideScopeException}.
-     */
-    public static Consumer<? super OutsideScopeException> getOutsideScopeHandler() {
-        return outsideScopeHandler;
-    }
-
-    /**
-     * @param handler the consumer for handling {@link OutsideScopeException} to set, null allowed
-     */
-    public static void setOutsideScopeHandler(Consumer<? super OutsideScopeException> handler) {
-        if (lockdown) {
-            throw new IllegalStateException("Plugins can't be changed anymore");
-        }
-        outsideScopeHandler = handler;
-    }
-
-    /**
-     * @param fillInStacktrace {@code true} to fill in stacktraces in
-     * {@link OutsideScopeException}s. {@code false} to disable them (and use them as signals
-     * only). Disabling them, if you don't care about the stacktraces, can result in some minor
-     * performance improvements.
-     */
-    public static void setFillInOutsideScopeExceptionStacktraces(boolean fillInStacktrace) {
-        if (lockdown) {
-            throw new IllegalStateException("Plugins can't be changed anymore");
-        }
-        fillInOutsideScopeExceptionStacktraces = fillInStacktrace;
-    }
-
-    /**
-     * Removes all handlers and resets to default behavior.
-     */
-    public static void reset() {
-        setOutsideScopeHandler(null);
-    }
+  /**
+   * Removes all handlers and resets to default behavior.
+   */
+  public static void reset() {
+    setOutsideScopeHandler(null);
+  }
 }

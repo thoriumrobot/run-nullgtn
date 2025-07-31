@@ -1,0 +1,4 @@
+meal_planner.oauth2.clientId=myClientId
+meal_planner.oauth2.clientSecret=myClientSecret
+meal_planner.oauth2.accessTokenUri=https://api.pinterest.com/v1/oauth/token
+meal_planner.oauth2.authorizationUri=https://api.pinterest.com/oauth/

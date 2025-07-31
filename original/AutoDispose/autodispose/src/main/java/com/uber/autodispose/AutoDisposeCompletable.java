@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.uber.autodispose;
 
 import io.reactivex.Completable;
@@ -21,17 +22,15 @@ import io.reactivex.CompletableSource;
 
 final class AutoDisposeCompletable extends Completable {
 
-    private final Completable source;
+  private final Completable source;
+  private final CompletableSource scope;
 
-    private final CompletableSource scope;
+  AutoDisposeCompletable(Completable source, CompletableSource scope) {
+    this.source = source;
+    this.scope = scope;
+  }
 
-    AutoDisposeCompletable(Completable source, CompletableSource scope) {
-        this.source = source;
-        this.scope = scope;
-    }
-
-    @Override
-    protected void subscribeActual(CompletableObserver completableObserver) {
-        source.subscribe(new AutoDisposingCompletableObserverImpl(scope, completableObserver));
-    }
+  @Override protected void subscribeActual(CompletableObserver completableObserver) {
+    source.subscribe(new AutoDisposingCompletableObserverImpl(scope, completableObserver));
+  }
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.uber.autodispose;
 
 import io.reactivex.CompletableSource;
@@ -21,18 +22,15 @@ import io.reactivex.SingleObserver;
 import io.reactivex.SingleSource;
 
 final class AutoDisposeSingle<T> extends Single<T> {
+  private final SingleSource<T> source;
+  private final CompletableSource scope;
 
-    private final SingleSource<T> source;
+  AutoDisposeSingle(SingleSource<T> source, CompletableSource scope) {
+    this.source = source;
+    this.scope = scope;
+  }
 
-    private final CompletableSource scope;
-
-    AutoDisposeSingle(SingleSource<T> source, CompletableSource scope) {
-        this.source = source;
-        this.scope = scope;
-    }
-
-    @Override
-    protected void subscribeActual(SingleObserver<? super T> observer) {
-        source.subscribe(new AutoDisposingSingleObserverImpl<>(scope, observer));
-    }
+  @Override protected void subscribeActual(SingleObserver<? super T> observer) {
+    source.subscribe(new AutoDisposingSingleObserverImpl<>(scope, observer));
+  }
 }

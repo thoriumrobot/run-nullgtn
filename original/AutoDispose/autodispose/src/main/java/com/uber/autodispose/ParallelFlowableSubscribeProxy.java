@@ -8,8 +8,8 @@ import org.reactivestreams.Subscriber;
  */
 public interface ParallelFlowableSubscribeProxy<T> {
 
-    /**
-     * Proxy for {@link ParallelFlowable#subscribe(Subscriber[])}.
-     */
-    void subscribe(Subscriber<? super T>[] subscribers);
+  /**
+   * Proxy for {@link ParallelFlowable#subscribe(Subscriber[])}.
+   */
+  void subscribe(Subscriber<? super T>[] subscribers);
 }

@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  */
+
 package com.uber.autodispose;
 
 import io.reactivex.annotations.Nullable;
@@ -27,26 +28,26 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 final class AtomicThrowable extends AtomicReference<Throwable> {
 
-    private static final long serialVersionUID = 3949248817947090603L;
+  private static final long serialVersionUID = 3949248817947090603L;
 
-    /**
-     * Atomically adds a Throwable to this container (combining with a previous Throwable is
-     * necessary).
-     *
-     * @param t the throwable to add
-     * @return true if successful, false if the container has been terminated
-     */
-    public boolean addThrowable(Throwable t) {
-        return ExceptionHelper.addThrowable(this, t);
-    }
+  /**
+   * Atomically adds a Throwable to this container (combining with a previous Throwable is
+   * necessary).
+   *
+   * @param t the throwable to add
+   * @return true if successful, false if the container has been terminated
+   */
+  public boolean addThrowable(Throwable t) {
+    return ExceptionHelper.addThrowable(this, t);
+  }
 
-    /**
-     * Atomically terminate the container and return the contents of the last
-     * non-terminal Throwable of it.
-     *
-     * @return the last Throwable
-     */
-    public Throwable terminate() {
-        return ExceptionHelper.terminate(this);
-    }
+  /**
+   * Atomically terminate the container and return the contents of the last
+   * non-terminal Throwable of it.
+   *
+   * @return the last Throwable
+   */
+  @Nullable public Throwable terminate() {
+    return ExceptionHelper.terminate(this);
+  }
 }

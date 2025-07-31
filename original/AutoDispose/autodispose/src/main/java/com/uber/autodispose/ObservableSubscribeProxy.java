@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.uber.autodispose;
 
 import io.reactivex.Observable;
@@ -28,67 +29,67 @@ import io.reactivex.observers.TestObserver;
  */
 public interface ObservableSubscribeProxy<T> {
 
-    /**
-     * Proxy for {@link Observable#subscribe()}.
-     *
-     * @return a {@link Disposable}
-     */
-    Disposable subscribe();
+  /**
+   * Proxy for {@link Observable#subscribe()}.
+   *
+   * @return a {@link Disposable}
+   */
+  Disposable subscribe();
 
-    /**
-     * Proxy for {@link Observable#subscribe(Consumer)}.
-     *
-     * @return a {@link Disposable}
-     */
-    Disposable subscribe(Consumer<? super T> onNext);
+  /**
+   * Proxy for {@link Observable#subscribe(Consumer)}.
+   *
+   * @return a {@link Disposable}
+   */
+  Disposable subscribe(Consumer<? super T> onNext);
 
-    /**
-     * Proxy for {@link Observable#subscribe(Consumer, Consumer)}.
-     *
-     * @return a {@link Disposable}
-     */
-    Disposable subscribe(Consumer<? super T> onNext, Consumer<? super Throwable> onError);
+  /**
+   * Proxy for {@link Observable#subscribe(Consumer, Consumer)}.
+   *
+   * @return a {@link Disposable}
+   */
+  Disposable subscribe(Consumer<? super T> onNext, Consumer<? super Throwable> onError);
 
-    /**
-     * Proxy for {@link Observable#subscribe(Consumer, Consumer, Action)}.
-     *
-     * @return a {@link Disposable}
-     */
-    Disposable subscribe(Consumer<? super T> onNext, Consumer<? super Throwable> onError, Action onComplete);
+  /**
+   * Proxy for {@link Observable#subscribe(Consumer, Consumer, Action)}.
+   *
+   * @return a {@link Disposable}
+   */
+  Disposable subscribe(Consumer<? super T> onNext, Consumer<? super Throwable> onError, Action onComplete);
 
-    /**
-     * Proxy for {@link Observable#subscribe(Consumer, Consumer, Action, Consumer)}.
-     *
-     * @return a {@link Disposable}
-     */
-    Disposable subscribe(Consumer<? super T> onNext, Consumer<? super Throwable> onError, Action onComplete, Consumer<? super Disposable> onSubscribe);
+  /**
+   * Proxy for {@link Observable#subscribe(Consumer, Consumer, Action, Consumer)}.
+   *
+   * @return a {@link Disposable}
+   */
+  Disposable subscribe(Consumer<? super T> onNext,
+      Consumer<? super Throwable> onError,
+      Action onComplete,
+      Consumer<? super Disposable> onSubscribe);
 
-    /**
-     * Proxy for {@link Observable#subscribe(Observer)}.
-     */
-    void subscribe(Observer<? super T> observer);
+  /**
+   * Proxy for {@link Observable#subscribe(Observer)}.
+   */
+  void subscribe(Observer<? super T> observer);
 
-    /**
-     * Proxy for {@link Observable#subscribeWith(Observer)}.
-     *
-     * @return an {@link Observer}
-     */
-    @CheckReturnValue
-    <E extends Observer<? super T>> E subscribeWith(E observer);
+  /**
+   * Proxy for {@link Observable#subscribeWith(Observer)}.
+   *
+   * @return an {@link Observer}
+   */
+  @CheckReturnValue <E extends Observer<? super T>> E subscribeWith(E observer);
 
-    /**
-     * Proxy for {@link Observable#test()}.
-     *
-     * @return a {@link TestObserver}
-     */
-    @CheckReturnValue
-    TestObserver<T> test();
+  /**
+   * Proxy for {@link Observable#test()}.
+   *
+   * @return a {@link TestObserver}
+   */
+  @CheckReturnValue TestObserver<T> test();
 
-    /**
-     * Proxy for {@link Observable#test(boolean)}.
-     *
-     * @return a {@link TestObserver}
-     */
-    @CheckReturnValue
-    TestObserver<T> test(boolean dispose);
+  /**
+   * Proxy for {@link Observable#test(boolean)}.
+   *
+   * @return a {@link TestObserver}
+   */
+  @CheckReturnValue TestObserver<T> test(boolean dispose);
 }

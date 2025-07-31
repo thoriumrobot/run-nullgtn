@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * AutoDispose is an RxJava 2 tool for automatically binding the execution of RxJava 2 streams to a
  * provided scope via disposal/cancellation.
@@ -35,4 +36,3 @@
  * of bug.
  */
 package com.uber.autodispose;
-

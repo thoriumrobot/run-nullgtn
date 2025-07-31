@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  */
+
 package com.uber.autodispose;
 
 import io.reactivex.annotations.Nullable;
@@ -25,54 +26,54 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 final class ExceptionHelper {
 
-    /**
-     * Utility class.
-     */
-    private ExceptionHelper() {
-        throw new IllegalStateException("No instances!");
+  /** Utility class. */
+  private ExceptionHelper() {
+    throw new IllegalStateException("No instances!");
+  }
+
+  /**
+   * A singleton instance of a Throwable indicating a terminal state for exceptions,
+   * don't leak this.
+   */
+  private static final Throwable TERMINATED = new Termination();
+
+  static boolean addThrowable(AtomicReference<Throwable> field, Throwable exception) {
+    for (; ; ) {
+      Throwable current = field.get();
+
+      if (current == TERMINATED) {
+        return false;
+      }
+
+      Throwable update;
+      if (current == null) {
+        update = exception;
+      } else {
+        update = new CompositeException(current, exception);
+      }
+
+      if (field.compareAndSet(current, update)) {
+        return true;
+      }
+    }
+  }
+
+  @Nullable static Throwable terminate(AtomicReference<Throwable> field) {
+    Throwable current = field.get();
+    if (current != TERMINATED) {
+      current = field.getAndSet(TERMINATED);
+    }
+    return current;
+  }
+
+  static final class Termination extends Throwable {
+
+    Termination() {
+      super("No further exceptions");
     }
 
-    /**
-     * A singleton instance of a Throwable indicating a terminal state for exceptions,
-     * don't leak this.
-     */
-    private static final Throwable TERMINATED = new Termination();
-
-    static boolean addThrowable(AtomicReference<Throwable> field, Throwable exception) {
-        for (; ; ) {
-            Throwable current = field.get();
-            if (current == TERMINATED) {
-                return false;
-            }
-            Throwable update;
-            if (current == null) {
-                update = exception;
-            } else {
-                update = new CompositeException(current, exception);
-            }
-            if (field.compareAndSet(current, update)) {
-                return true;
-            }
-        }
+    @Override public synchronized Throwable fillInStackTrace() {
+      return this;
     }
-
-    static Throwable terminate(AtomicReference<Throwable> field) {
-        Throwable current = field.get();
-        if (current != TERMINATED) {
-            current = field.getAndSet(TERMINATED);
-        }
-        return current;
-    }
-
-    static final class Termination extends Throwable {
-
-        Termination() {
-            super("No further exceptions");
-        }
-
-        @Override
-        public synchronized Throwable fillInStackTrace() {
-            return this;
-        }
-    }
+  }
 }

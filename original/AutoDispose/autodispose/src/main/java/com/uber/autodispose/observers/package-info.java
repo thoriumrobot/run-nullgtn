@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * These are Observers AutoDispose uses when scoping an observable. They are exposed as a public API
  * to allow for consumers to watch for them if they want, such as in RxJava plugins.

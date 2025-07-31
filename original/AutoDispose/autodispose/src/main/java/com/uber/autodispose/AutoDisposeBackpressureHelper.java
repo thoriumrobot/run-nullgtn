@@ -22,47 +22,44 @@ import java.util.concurrent.atomic.AtomicLong;
  * from the RxJava implementation.
  */
 final class AutoDisposeBackpressureHelper {
+  /** Utility class. */
+  private AutoDisposeBackpressureHelper() {
+    throw new IllegalStateException("No instances!");
+  }
 
-    /**
-     * Utility class.
-     */
-    private AutoDisposeBackpressureHelper() {
-        throw new IllegalStateException("No instances!");
+  /**
+   * Adds two long values and caps the sum at Long.MAX_VALUE.
+   *
+   * @param a the first value
+   * @param b the second value
+   * @return the sum capped at Long.MAX_VALUE
+   */
+  private static long addCap(long a, long b) {
+    long u = a + b;
+    if (u < 0L) {
+      return Long.MAX_VALUE;
     }
+    return u;
+  }
 
-    /**
-     * Adds two long values and caps the sum at Long.MAX_VALUE.
-     *
-     * @param a the first value
-     * @param b the second value
-     * @return the sum capped at Long.MAX_VALUE
-     */
-    private static long addCap(long a, long b) {
-        long u = a + b;
-        if (u < 0L) {
-            return Long.MAX_VALUE;
-        }
-        return u;
+  /**
+   * Atomically adds the positive value n to the requested value in the AtomicLong and
+   * caps the result at Long.MAX_VALUE and returns the previous value.
+   *
+   * @param requested the AtomicLong holding the current requested value
+   * @param n the value to add, must be positive (not verified)
+   * @return the original value before the add
+   */
+  static long add(AtomicLong requested, long n) {
+    for (; ; ) {
+      long r = requested.get();
+      if (r == Long.MAX_VALUE) {
+        return Long.MAX_VALUE;
+      }
+      long u = addCap(r, n);
+      if (requested.compareAndSet(r, u)) {
+        return r;
+      }
     }
-
-    /**
-     * Atomically adds the positive value n to the requested value in the AtomicLong and
-     * caps the result at Long.MAX_VALUE and returns the previous value.
-     *
-     * @param requested the AtomicLong holding the current requested value
-     * @param n the value to add, must be positive (not verified)
-     * @return the original value before the add
-     */
-    static long add(AtomicLong requested, long n) {
-        for (; ; ) {
-            long r = requested.get();
-            if (r == Long.MAX_VALUE) {
-                return Long.MAX_VALUE;
-            }
-            long u = addCap(r, n);
-            if (requested.compareAndSet(r, u)) {
-                return r;
-            }
-        }
-    }
+  }
 }
