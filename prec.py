@@ -34,49 +34,34 @@ def collect_nullable(root: pathlib.Path) -> set[Hit]:
         def ann_names(ann_list):
             return {a.name.split(".")[-1] for a in (ann_list or [])}
 
-    # Traverse ----------------------------------------------------------
-    for _, node in tree:
-        # ------------- fields -----------------------------------------
-        if isinstance(node, javalang.tree.FieldDeclaration):
-            if "Nullable" in ann_names(node.annotations):
-                for decl in node.declarators:
-                    pos = decl.position or node.position
-                    hits.add(_mk_hit(fpath, pos, "field",
-                                     f"{pkg}.{decl.name}"))
+        # Traverse ----------------------------------------------------------
+        for _, node in tree:
+            # ------------- fields -----------------------------------------
+            if isinstance(node, javalang.tree.FieldDeclaration):
+                if "Nullable" in ann_names(node.annotations):
+                    for decl in node.declarators:
+                        pos = decl.position or node.position
+                        hits.add(_mk_hit(fpath, pos, "field",
+                                         f"{pkg}.{decl.name}"))
 
-        # ------------- methods / ctors ---------------------------------
-        elif isinstance(node, (javalang.tree.MethodDeclaration,
-                               javalang.tree.ConstructorDeclaration)):
-            # ① annotations on the method itself
-            meth_nullable = "Nullable" in ann_names(node.annotations)
-            # ② annotations on the return‐type (only if that attr exists)
-            rt_node = getattr(node, "return_type", None)
-            rt_nullable = (
-                rt_node is not None
-                and hasattr(rt_node, "annotations")
-                and "Nullable" in ann_names(rt_node.annotations)
-            )
-            if meth_nullable or rt_nullable:
-                pos = (rt_node.position
-                       if rt_nullable and rt_node.position
-                       else node.position)
-                hits.add(_mk_hit(fpath, pos, "return",
-                                 f"{pkg}.{node.name}()"))
-
-            # nullable parameters
-            for idx, param in enumerate(node.parameters):
-                if "Nullable" in ann_names(param.annotations):
-                    pos = param.position or node.position
-                    sig = f"{pkg}.{node.name}():param{idx}"
-                    hits.add(_mk_hit(fpath, pos, "param", sig))
-
-        # ------------- local variables (optional) ----------------------
-        elif isinstance(node, javalang.tree.LocalVariableDeclaration):
-            if "Nullable" in ann_names(node.annotations):
-                for decl in node.declarators:
-                    pos = decl.position or node.position
-                    sig = f"local:{decl.name}@{pos.line}"
-                    hits.add(_mk_hit(fpath, pos, "local", sig))
+            # ------------- methods / ctors ---------------------------------
+            elif isinstance(node, (javalang.tree.MethodDeclaration,
+                                   javalang.tree.ConstructorDeclaration)):
+                # ① annotations on the method itself
+                meth_nullable = "Nullable" in ann_names(node.annotations)
+                # ② annotations on the return‐type (only if that attr exists)
+                rt_node = getattr(node, "return_type", None)
+                rt_nullable = (
+                    rt_node is not None
+                    and hasattr(rt_node, "annotations")
+                    and "Nullable" in ann_names(rt_node.annotations)
+                )
+                if meth_nullable or rt_nullable:
+                    pos = (rt_node.position
+                           if rt_nullable and rt_node.position
+                           else node.position)
+                    hits.add(_mk_hit(fpath, pos, "return",
+                                     f"{pkg}.{node.name}()"))
 
                 # nullable parameters
                 for idx, param in enumerate(node.parameters):
@@ -84,6 +69,7 @@ def collect_nullable(root: pathlib.Path) -> set[Hit]:
                         pos = param.position or node.position
                         sig = f"{pkg}.{node.name}():param{idx}"
                         hits.add(_mk_hit(fpath, pos, "param", sig))
+
             # ------------- local variables (optional) ----------------------
             elif isinstance(node, javalang.tree.LocalVariableDeclaration):
                 if "Nullable" in ann_names(node.annotations):
@@ -91,6 +77,7 @@ def collect_nullable(root: pathlib.Path) -> set[Hit]:
                         pos = decl.position or node.position
                         sig = f"local:{decl.name}@{pos.line}"
                         hits.add(_mk_hit(fpath, pos, "local", sig))
+
     return hits
 
 
@@ -135,7 +122,7 @@ def main():
     rec  = tp / (tp + fn) if tp + fn else 0.0
 
     print("\n=== Precision / Recall Report ===")
-    print(f"True positives : {tp}")
+    print(f"True positives : {tp}")
     print(f"False positives: {fp}")
     print(f"False negatives: {fn}")
     print(f"Precision      : {prec:6.3%}")
@@ -143,10 +130,10 @@ def main():
 
     # Optional: dump mismatches for manual inspection
     if fp or fn:
-        print("\n• False positives (only inferred):")
+        print("\n• False positives (only inferred):")
         for h in sorted(fp_set)[:20]:
             print(f"  {h.file}:{h.line}:{h.col}  {h.kind}  {h.sig}")
-        print("• False negatives (missed true @Nullable):")
+        print("• False negatives (missed true @Nullable):")
         for h in sorted(fn_set)[:20]:
             print(f"  {h.file}:{h.line}:{h.col}  {h.kind}  {h.sig}")
 
