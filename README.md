@@ -1,6 +1,6 @@
 Performance Benchmarking of Java Null Safety Tools
 
-OS: Tested on Ubuntu 22 and Ubuntu 24.
+OS: Tested on Ubuntu 22 and Ubuntu 24. For training and precision, use a 16 GB graphics card. This is unnecessary for warning generation.
 
 ------------
 Evaluates build times for Java projects using [NullAway](https://github.com/uber/NullAway), [Checker Framework](https://github.com/typetools/checker-framework)'s [Nullness Checker](https://checkerframework.org/manual/#nullness-checker), and [Eradicate](https://fbinfer.com/docs/eradicate.html).
