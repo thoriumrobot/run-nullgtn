@@ -129,6 +129,7 @@ pip install -r requirements.txt
 <Update paths in config.ini>
 
 #Replace the following 3 lines with the appropriate directories
+
 conda env config vars set ANDROID_HOME=/naenv/android-sdk
 
 conda env config vars set PATH=/naenv/checker-framework-3.42.0/checker/bin:/naenv/infer-linux64-v1.1.0/bin/:/naenv/android-sdk/tools/bin/:$PATH
