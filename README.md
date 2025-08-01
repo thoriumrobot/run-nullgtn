@@ -122,7 +122,7 @@ git clone https://github.com/thoriumrobot/run-nullgtn
 
 git clone -b sb_compile-bench https://github.com/subarnob/NullAway
 
-cd nullaway-eval
+cd run-nullgtn
 
 pip install -r requirements.txt
 
