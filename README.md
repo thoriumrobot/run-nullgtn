@@ -136,6 +136,8 @@ conda env config vars set PATH=/naenv/checker-framework-3.42.0/checker/bin:/naen
 
 conda env config vars set CHECKERFRAMEWORK=/naenv/checker-framework-3.42.0
 
+conda activate
+
 conda activate naenv
 
 sdkmanager --licenses
