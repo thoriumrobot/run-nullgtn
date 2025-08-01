@@ -142,6 +142,8 @@ conda activate naenv
 
 sdkmanager --licenses
 
+#The following 2 lines if downloading repos:
+
 python eval_repos.py -w -nu
 
 rm eval.log
