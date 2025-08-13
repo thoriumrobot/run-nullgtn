@@ -39,6 +39,7 @@ abstract class LeakTracker {
      * A placeholder WeakReference that acts as a marker to tell if the GC has run since the
      * allocation
      */
+    @Nullable
     private WeakReference<Object> gcIndicatorWeakReference;
 
     LeakTracker(Class<?> eventClass, WeakReferenceGenerator weakReferenceGenerator, String name, final LeakType leakType) {
@@ -61,6 +62,7 @@ abstract class LeakTracker {
         return name;
     }
 
+    @Nullable
     final WeakReference<Object> getGcIndicatorWeakReference() {
         return gcIndicatorWeakReference;
     }
@@ -97,7 +99,7 @@ abstract class LeakTracker {
      * @param weakReference to be tracked.
      * @param timeCreatedMs time the tracking was initialized.
      */
-    abstract void track(WeakReference<?> weakReference, final long timeCreatedMs);
+    abstract void track(@Nullable() WeakReference<?> weakReference, @Nullable() final long timeCreatedMs);
 
     abstract boolean requiresTracking();
 

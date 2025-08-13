@@ -55,6 +55,7 @@ final class TrackedReferences {
      * @param refGeneratorFactory factory to generate a weak reference.
      * @return existing leak tracker or a new one if it didn't exist already.
      */
+    @Nullable
     LeakTracker getOrCreate(Class<?> clazz, LeakType leakType, String className, ActiveTracker.RefGeneratorFactory refGeneratorFactory) {
         if (leakTrackerMultiMap.containsKey(clazz) && leakTrackerMultiMap.get(clazz).containsKey(leakType)) {
             return leakTrackerMultiMap.get(clazz).get(leakType);

@@ -62,6 +62,8 @@ class ActiveTracker implements LeakInstanceTracker {
 
     private final TrackedReferences trackedReferences = new TrackedReferences();
 
+    @Nullable()
+    @Nullable
     private Disposable disposable;
 
     private final RefGeneratorFactory refGeneratorFactory;
@@ -183,6 +185,7 @@ class ActiveTracker implements LeakInstanceTracker {
      * @param tracker the SingleInstanceTracker that observed a violation
      * @return the UR event
      */
+    @Nullable()
     private ULeakEvent createReportingEvent(final LeakTracker tracker) {
         ULeakEvent reporterEvent = new ULeakEvent();
         reporterEvent.addDimension(CLASS_DIMENSION_KEY_NAME, tracker.getTrackerName());

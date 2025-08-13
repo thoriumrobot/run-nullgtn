@@ -23,7 +23,7 @@ targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     // Use jcenter for gradle plugin portal releases.
-    jcenter()
+    mavenCentral()
 }
 
 sourceSets {

@@ -11,7 +11,7 @@ group 'example.micronaut-jib'
 
 repositories {
     mavenCentral()
-    maven { url 'https://jcenter.bintray.com' }
+    mavenCentral()
 }
 
 dependencyManagement {

@@ -1,0 +1,5 @@
+> Build Begin - uLeak - nullaway
+[F	[1;31mFAIL [0m
+1 compiles.
+1 errors: Check log! /naenv/warnings/eval.log
+00:00:02

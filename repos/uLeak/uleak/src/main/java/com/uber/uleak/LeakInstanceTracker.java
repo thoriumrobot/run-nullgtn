@@ -16,6 +16,7 @@
 package com.uber.uleak;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
+import android.support.annotation.Nullable;
 
 interface LeakInstanceTracker {
 

@@ -19,14 +19,14 @@ apply from: 'gradle/dependencies.gradle'
 subprojects {
     buildscript {
         repositories {
-            jcenter()
+            mavenCentral()
             maven { url deps.build.gradlePluginsUrl }
             maven { url "https://maven.google.com" }
         }
     }
 
     repositories {
-        jcenter()
+        mavenCentral()
         maven { url deps.build.gradlePluginsUrl }
         maven { url "https://maven.google.com" }
     }

@@ -37,6 +37,8 @@ public class ULeak {
 
     private static final PublishSubject<Throwable> ERROR_RELAY = PublishSubject.create();
 
+    @Nullable()
+    @Nullable
     private static LeakInstanceTracker trackerSingleton = null;
 
     private ULeak() {
